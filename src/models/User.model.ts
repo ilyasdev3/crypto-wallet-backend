@@ -1,17 +1,22 @@
-import { Schema, model, connect } from "mongoose";
-import { IUser } from "../types/user.types";
+import { UserDocument, UserModel, UserSchema } from './../types/mongoose.gen';
+import { Schema, model } from "mongoose";
 
-const userSchema = new Schema<IUser>({
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
-  username: { type: String, required: true, unique: true },
+
+
+const userSchema: UserSchema = new Schema({
+  firstName: { type: String,  },
+  lastName: { type: String,  },
+  username: { type: String,  unique: true },
   password: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  phone: { type: String, required: true },
-  address: { type: String, required: true },
-  isVerified: { type: Boolean, required: true, default: false },
+  email: { type: String, },
+  phone: { type: String, },
+  address: { type: String,  },
+  isVerified: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
 
-const User = model<IUser>("User", userSchema);
+ const UserModel:UserModel = model<UserDocument, UserModel>("User", userSchema);
+
+ export {UserModel}
+
