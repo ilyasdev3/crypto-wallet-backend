@@ -4,25 +4,39 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "compile": "tsc",
-    "build": "tsc",
-    "start": "npm run compile && node ./dist/index.js",
-    "dev": "nodemon ./src/index.ts"
+    "start": "node dist/index.js",
+    "mtgen": "mtgen --output ./src/types ./src/models",
+    "build": "rimraf dist && node esbuild.config.js",
+    "dev": "npm run mtgen && npm  run generate && nodemon --exec ts-node src/server.ts",
+    "generate": "graphql-codegen"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
   "dependencies": {
     "@apollo/server": "^4.11.0",
     "apollo-server-express": "^3.13.0",
+    "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
+    "dotenv": "^16.4.5",
+    "esbuild": "^0.23.1",
+    "ethers": "^6.13.2",
     "graphql": "^16.9.0",
+    "graphql-scalars": "^1.23.0",
     "graphql-upload-minimal": "^1.6.1",
-    "mongoose": "^8.6.1"
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.6.1",
+    "mongoose-tsgen": "^9.4.2",
+    "ts-node": "^10.9.2"
   },
   "devDependencies": {
+    "@eddeee888/gcg-typescript-resolver-files": "^0.6.0",
+    "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-tools/schema": "^10.0.6",
+    "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^22.5.4",
+    "prettier": "^3.3.3",
     "typescript": "^5.5.4"
   }
 }
