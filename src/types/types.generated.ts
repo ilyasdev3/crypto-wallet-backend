@@ -80,12 +80,19 @@ export type User = {
   isVerified?: Maybe<Scalars["Boolean"]["output"]>;
   lastName?: Maybe<Scalars["String"]["output"]>;
   phone?: Maybe<Scalars["String"]["output"]>;
+  profileImage?: Maybe<Scalars["String"]["output"]>;
   updatedAt?: Maybe<Scalars["Date"]["output"]>;
   username: Scalars["String"]["output"];
 };
 
 export type UserInput = {
+  address?: InputMaybe<Scalars["String"]["input"]>;
+  email?: InputMaybe<Scalars["String"]["input"]>;
+  firstName?: InputMaybe<Scalars["String"]["input"]>;
+  lastName?: InputMaybe<Scalars["String"]["input"]>;
   password: Scalars["String"]["input"];
+  phone?: InputMaybe<Scalars["String"]["input"]>;
+  profileImage?: InputMaybe<Scalars["Upload"]["input"]>;
   username: Scalars["String"]["input"];
 };
 
@@ -311,6 +318,11 @@ export type UserResolvers<
   >;
   lastName?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   phone?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  profileImage?: Resolver<
+    Maybe<ResolversTypes["String"]>,
+    ParentType,
+    ContextType
+  >;
   updatedAt?: Resolver<Maybe<ResolversTypes["Date"]>, ParentType, ContextType>;
   username?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

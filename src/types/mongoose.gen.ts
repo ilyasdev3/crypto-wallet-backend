@@ -122,7 +122,7 @@ export type User = {
   email?: string;
   phone?: string;
   address?: string;
-  isVerified?: boolean;
+  isActive?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
   _id: mongoose.Types.ObjectId;
@@ -205,7 +205,7 @@ export type UserDocument = mongoose.Document<
     email?: string;
     phone?: string;
     address?: string;
-    isVerified?: boolean;
+    isActive?: boolean;
     createdAt?: Date;
     updatedAt?: Date;
     _id: mongoose.Types.ObjectId;
