@@ -1,12 +1,14 @@
 type Query {
   getUser(id: ID!): User
-  me : User
+  me: User
 }
 type Mutation {
   createUser(user: UserInput!): String
   updateUser(id: ID!, user: UserInput!): String
   deleteUser(id: ID!): String
 }
+
+scalar Upload
 
 type User {
   id: ID!
@@ -15,6 +17,7 @@ type User {
   username: String!
   email: String
   phone: String
+  profileImage: String
   address: String
   isVerified: Boolean
   createdAt: Date
@@ -24,4 +27,10 @@ type User {
 input UserInput {
   username: String!
   password: String!
+  firstName: String
+  lastName: String
+  email: String
+  phone: String
+  profileImage: Upload
+  address: String
 }
