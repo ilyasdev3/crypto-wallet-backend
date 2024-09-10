@@ -12,6 +12,7 @@ type CreateUserResponse {
 type Mutation {
   createUser(user: UserInput!): CreateUserResponse
   updateUser(id: ID!, user: UserInput!): String
+  checkUsername(username: String!): String
   deleteUser(id: ID!): String
 }
 
