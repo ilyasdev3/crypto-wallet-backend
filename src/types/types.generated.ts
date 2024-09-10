@@ -40,9 +40,15 @@ export type Scalars = {
   Upload: { input: any; output: any };
 };
 
+export type CreateUserResponse = {
+  __typename?: "CreateUserResponse";
+  message?: Maybe<Scalars["String"]["output"]>;
+  token?: Maybe<Scalars["String"]["output"]>;
+};
+
 export type Mutation = {
   __typename?: "Mutation";
-  createUser?: Maybe<Scalars["String"]["output"]>;
+  createUser?: Maybe<CreateUserResponse>;
   deleteUser?: Maybe<Scalars["String"]["output"]>;
   updateUser?: Maybe<Scalars["String"]["output"]>;
 };
@@ -203,11 +209,12 @@ export type DirectiveResolverFn<
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
+  CreateUserResponse: ResolverTypeWrapper<CreateUserResponse>;
+  String: ResolverTypeWrapper<Scalars["String"]["output"]>;
   Date: ResolverTypeWrapper<Scalars["Date"]["output"]>;
   DateTime: ResolverTypeWrapper<Scalars["DateTime"]["output"]>;
   JSON: ResolverTypeWrapper<Scalars["JSON"]["output"]>;
   Mutation: ResolverTypeWrapper<{}>;
-  String: ResolverTypeWrapper<Scalars["String"]["output"]>;
   ID: ResolverTypeWrapper<Scalars["ID"]["output"]>;
   ObjectId: ResolverTypeWrapper<Scalars["ObjectId"]["output"]>;
   Query: ResolverTypeWrapper<{}>;
@@ -219,11 +226,12 @@ export type ResolversTypes = {
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
+  CreateUserResponse: CreateUserResponse;
+  String: Scalars["String"]["output"];
   Date: Scalars["Date"]["output"];
   DateTime: Scalars["DateTime"]["output"];
   JSON: Scalars["JSON"]["output"];
   Mutation: {};
-  String: Scalars["String"]["output"];
   ID: Scalars["ID"]["output"];
   ObjectId: Scalars["ObjectId"]["output"];
   Query: {};
@@ -231,6 +239,16 @@ export type ResolversParentTypes = {
   User: User;
   Boolean: Scalars["Boolean"]["output"];
   UserInput: UserInput;
+};
+
+export type CreateUserResponseResolvers<
+  ContextType = any,
+  ParentType extends
+    ResolversParentTypes["CreateUserResponse"] = ResolversParentTypes["CreateUserResponse"],
+> = {
+  message?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  token?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export interface DateScalarConfig
@@ -254,7 +272,7 @@ export type MutationResolvers<
     ResolversParentTypes["Mutation"] = ResolversParentTypes["Mutation"],
 > = {
   createUser?: Resolver<
-    Maybe<ResolversTypes["String"]>,
+    Maybe<ResolversTypes["CreateUserResponse"]>,
     ParentType,
     ContextType,
     RequireFields<MutationCreateUserArgs, "user">
@@ -329,6 +347,7 @@ export type UserResolvers<
 };
 
 export type Resolvers<ContextType = any> = {
+  CreateUserResponse?: CreateUserResponseResolvers<ContextType>;
   Date?: GraphQLScalarType;
   DateTime?: GraphQLScalarType;
   JSON?: GraphQLScalarType;
