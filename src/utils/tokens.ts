@@ -13,15 +13,21 @@ export const generateToken = (user: any): string => {
   });
 };
 
-export const verifyToken = (token: string): IContext => {
+export const verifyToken = async (token: string) => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
+      id: string;
+      username: string;
+    };
 
-    if (typeof decoded === "string") {
-      throw new Error("Invalid token");
+    const user = await UserModel.findById(decoded.id);
+    if (!user) {
+      throw new Error("User not found");
     }
-
-    return decoded as IContext;
+    return {
+      id: decoded.id,
+      username: decoded.username,
+    };
   } catch (error) {
     throw new Error("Token verification failed");
   }
