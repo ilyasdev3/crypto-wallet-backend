@@ -47,8 +47,8 @@ async function startServer() {
     await server.start();
     app.use(
       "/graphql",
-      graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 1 }),
-      bodyParser.json({ limit: "10mb" }),
+      graphqlUploadExpress({ maxFileSize: 1000000000, maxFiles: 1 }),
+      bodyParser.json({ limit: "50mb" }),
       cors({ origin: "*" }),
       expressMiddleware(server, {
         context: async ({ req, res }) => {
