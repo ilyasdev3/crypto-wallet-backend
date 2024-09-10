@@ -2,8 +2,15 @@ type Query {
   getUser(id: ID!): User
   me: User
 }
+
+type CreateUserResponse {
+  # user: User
+  message: String
+  token: String
+}
+
 type Mutation {
-  createUser(user: UserInput!): String
+  createUser(user: UserInput!): CreateUserResponse
   updateUser(id: ID!, user: UserInput!): String
   deleteUser(id: ID!): String
 }
