@@ -1,3 +1,4 @@
+import { generateToken } from "./../utils/tokens";
 import { hashPassword } from "./../utils/password";
 import { QueryResolvers, MutationResolvers } from "../types/types.generated";
 import { UserModel } from "../models/User.model";
@@ -79,6 +80,12 @@ export const userMutations: MutationResolvers = {
       updatedAt: new Date(),
     }).save();
 
-    return "User created successfully";
+    const token = generateToken(newUser);
+    console.log("token", token);
+
+    return {
+      message: "User created successfully",
+      token: token,
+    };
   },
 };
