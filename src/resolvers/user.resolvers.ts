@@ -16,6 +16,7 @@ export const userQueries: QueryResolvers<IContext> = {
   getUser: async (parent, { id }, { error }) => {
     if (error) throw error;
     const user = await UserModel.findById(id);
+    if (!user) throw new Error("User not found");
     return user as any;
   },
 };
@@ -38,15 +39,15 @@ export const userMutations: MutationResolvers = {
       );
     }
 
-    if (
-      !user.password.match(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
-      )
-    ) {
-      throw new GraphQLError(
-        "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
-      );
-    }
+    // if (
+    //   !user.password.match(
+    //     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+    //   )
+    // ) {
+    //   throw new GraphQLError(
+    //     "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+    //   );
+    // }
 
     const existingUser = await UserModel.findOne({ username: user.username });
     if (existingUser) throw new GraphQLError("Username already exists");
@@ -87,5 +88,18 @@ export const userMutations: MutationResolvers = {
       message: "User created successfully",
       token: token,
     };
+  },
+  checkUsername: async (parent, { username }) => {
+    if (!username) throw new GraphQLError("Please enter username");
+    if (username.length < 5 || username.length > 20)
+      throw new GraphQLError("Username must be between 5 and 20 characters");
+    if (!username.match(/^[a-zA-Z0-9_]+$/))
+      throw new GraphQLError(
+        "Username can only contain letters, numbers, and underscores"
+      );
+
+    const existingUser = await UserModel.findOne({ username: username });
+    if (existingUser) throw new GraphQLError("Username already exists");
+    return "Username available";
   },
 };
