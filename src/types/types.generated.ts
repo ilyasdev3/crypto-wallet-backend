@@ -48,9 +48,14 @@ export type CreateUserResponse = {
 
 export type Mutation = {
   __typename?: "Mutation";
+  checkUsername?: Maybe<Scalars["String"]["output"]>;
   createUser?: Maybe<CreateUserResponse>;
   deleteUser?: Maybe<Scalars["String"]["output"]>;
   updateUser?: Maybe<Scalars["String"]["output"]>;
+};
+
+export type MutationCheckUsernameArgs = {
+  username: Scalars["String"]["input"];
 };
 
 export type MutationCreateUserArgs = {
@@ -271,6 +276,12 @@ export type MutationResolvers<
   ParentType extends
     ResolversParentTypes["Mutation"] = ResolversParentTypes["Mutation"],
 > = {
+  checkUsername?: Resolver<
+    Maybe<ResolversTypes["String"]>,
+    ParentType,
+    ContextType,
+    RequireFields<MutationCheckUsernameArgs, "username">
+  >;
   createUser?: Resolver<
     Maybe<ResolversTypes["CreateUserResponse"]>,
     ParentType,
