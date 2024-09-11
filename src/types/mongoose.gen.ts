@@ -121,6 +121,7 @@ export type User = {
   password: string;
   email?: string;
   phone?: string;
+  profileImage?: string;
   address?: string;
   isActive?: boolean;
   createdAt?: Date;
@@ -204,6 +205,7 @@ export type UserDocument = mongoose.Document<
     password: string;
     email?: string;
     phone?: string;
+    profileImage?: string;
     address?: string;
     isActive?: boolean;
     createdAt?: Date;

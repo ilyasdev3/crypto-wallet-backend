@@ -103,7 +103,7 @@ export type UserInput = {
   lastName?: InputMaybe<Scalars["String"]["input"]>;
   password: Scalars["String"]["input"];
   phone?: InputMaybe<Scalars["String"]["input"]>;
-  profileImage?: InputMaybe<Scalars["Upload"]["input"]>;
+  profileImage: Scalars["Upload"]["input"];
   username: Scalars["String"]["input"];
 };
 
