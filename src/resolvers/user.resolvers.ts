@@ -24,6 +24,7 @@ export const userQueries: QueryResolvers<IContext> = {
 export const userMutations: MutationResolvers = {
   createUser: async (parent, { user }) => {
     console.log("user at top", user);
+    console.log("profile image", user.profileImage);
 
     if (!user.username || !user.password)
       throw new GraphQLError("Username and password are required");
@@ -52,10 +53,13 @@ export const userMutations: MutationResolvers = {
     const existingUser = await UserModel.findOne({ username: user.username });
     if (existingUser) throw new GraphQLError("Username already exists");
 
+    // Extract file from FormData and upload to Cloudinary
+    let profileImageUrl = null;
     if (user.profileImage) {
-      const profileImage = await uploadToCloudinary(user.profileImage.file);
+      profileImageUrl = await uploadToCloudinary(user.profileImage);
+      console.log("profileImageUrl", profileImageUrl);
 
-      user.profileImage = profileImage;
+      user.profileImage = profileImageUrl;
     }
 
     const pass = await hashPassword(user.password);
