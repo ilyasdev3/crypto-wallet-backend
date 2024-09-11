@@ -39,6 +39,6 @@ input UserInput {
   lastName: String
   email: String
   phone: String
-  profileImage: Upload
+  profileImage: Upload!
   address: String
 }
