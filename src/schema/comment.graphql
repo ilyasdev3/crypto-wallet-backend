@@ -1,0 +1,26 @@
+type Query {
+  getComments(id: ID!): [Comment]
+  getUserComments(id: ID!): [Comment]
+}
+
+type Comment {
+  userId: ID
+  postId: ID
+  content: String
+  createdAt: Date
+  updatedAt: Date
+}
+
+type Mutation {
+  createComment(comment: CommentInput!): CreateCommentResponse
+}
+
+input CommentInput {
+  userId: ID
+  postId: ID
+  content: String
+}
+
+type CreateCommentResponse {
+  message: String
+}
