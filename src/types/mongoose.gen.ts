@@ -8,6 +8,308 @@
 import mongoose from "mongoose";
 
 /**
+ * Lean version of CommentDocument
+ *
+ * This has all Mongoose getters & functions removed. This type will be returned from `CommentDocument.toObject()`. To avoid conflicts with model names, use the type alias `CommentObject`.
+ * ```
+ * const commentObject = comment.toObject();
+ * ```
+ */
+export type Comment = {
+  userId: User["_id"] | User;
+  postId: Post["_id"] | Post;
+  content: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  _id: mongoose.Types.ObjectId;
+};
+
+/**
+ * Lean version of CommentDocument (type alias of `Comment`)
+ *
+ * Use this type alias to avoid conflicts with model names:
+ * ```
+ * import { Comment } from "../models"
+ * import { CommentObject } from "../interfaces/mongoose.gen.ts"
+ *
+ * const commentObject: CommentObject = comment.toObject();
+ * ```
+ */
+export type CommentObject = Comment;
+
+/**
+ * Mongoose Query type
+ *
+ * This type is returned from query functions. For most use cases, you should not need to use this type explicitly.
+ */
+export type CommentQuery = mongoose.Query<
+  any,
+  CommentDocument,
+  CommentQueries
+> &
+  CommentQueries;
+
+/**
+ * Mongoose Query helper types
+ *
+ * This type represents `CommentSchema.query`. For most use cases, you should not need to use this type explicitly.
+ */
+export type CommentQueries = {};
+
+export type CommentMethods = {};
+
+export type CommentStatics = {};
+
+/**
+ * Mongoose Model type
+ *
+ * Pass this type to the Mongoose Model constructor:
+ * ```
+ * const Comment = mongoose.model<CommentDocument, CommentModel>("Comment", CommentSchema);
+ * ```
+ */
+export type CommentModel = mongoose.Model<CommentDocument, CommentQueries> &
+  CommentStatics;
+
+/**
+ * Mongoose Schema type
+ *
+ * Assign this type to new Comment schema instances:
+ * ```
+ * const CommentSchema: CommentSchema = new mongoose.Schema({ ... })
+ * ```
+ */
+export type CommentSchema = mongoose.Schema<
+  CommentDocument,
+  CommentModel,
+  CommentMethods,
+  CommentQueries
+>;
+
+/**
+ * Mongoose Document type
+ *
+ * Pass this type to the Mongoose Model constructor:
+ * ```
+ * const Comment = mongoose.model<CommentDocument, CommentModel>("Comment", CommentSchema);
+ * ```
+ */
+export type CommentDocument = mongoose.Document<
+  mongoose.Types.ObjectId,
+  CommentQueries
+> &
+  CommentMethods & {
+    userId: UserDocument["_id"] | UserDocument;
+    postId: PostDocument["_id"] | PostDocument;
+    content: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+    _id: mongoose.Types.ObjectId;
+  };
+
+/**
+ * Lean version of CommunityDocument
+ *
+ * This has all Mongoose getters & functions removed. This type will be returned from `CommunityDocument.toObject()`. To avoid conflicts with model names, use the type alias `CommunityObject`.
+ * ```
+ * const communityObject = community.toObject();
+ * ```
+ */
+export type Community = {
+  name: string;
+  description?: string;
+  isVerified: boolean;
+  userId: User["_id"] | User;
+  profileImage?: string;
+  coverImaage?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  _id: mongoose.Types.ObjectId;
+};
+
+/**
+ * Lean version of CommunityDocument (type alias of `Community`)
+ *
+ * Use this type alias to avoid conflicts with model names:
+ * ```
+ * import { Community } from "../models"
+ * import { CommunityObject } from "../interfaces/mongoose.gen.ts"
+ *
+ * const communityObject: CommunityObject = community.toObject();
+ * ```
+ */
+export type CommunityObject = Community;
+
+/**
+ * Mongoose Query type
+ *
+ * This type is returned from query functions. For most use cases, you should not need to use this type explicitly.
+ */
+export type CommunityQuery = mongoose.Query<
+  any,
+  CommunityDocument,
+  CommunityQueries
+> &
+  CommunityQueries;
+
+/**
+ * Mongoose Query helper types
+ *
+ * This type represents `CommunitySchema.query`. For most use cases, you should not need to use this type explicitly.
+ */
+export type CommunityQueries = {};
+
+export type CommunityMethods = {};
+
+export type CommunityStatics = {};
+
+/**
+ * Mongoose Model type
+ *
+ * Pass this type to the Mongoose Model constructor:
+ * ```
+ * const Community = mongoose.model<CommunityDocument, CommunityModel>("Community", CommunitySchema);
+ * ```
+ */
+export type CommunityModel = mongoose.Model<
+  CommunityDocument,
+  CommunityQueries
+> &
+  CommunityStatics;
+
+/**
+ * Mongoose Schema type
+ *
+ * Assign this type to new Community schema instances:
+ * ```
+ * const CommunitySchema: CommunitySchema = new mongoose.Schema({ ... })
+ * ```
+ */
+export type CommunitySchema = mongoose.Schema<
+  CommunityDocument,
+  CommunityModel,
+  CommunityMethods,
+  CommunityQueries
+>;
+
+/**
+ * Mongoose Document type
+ *
+ * Pass this type to the Mongoose Model constructor:
+ * ```
+ * const Community = mongoose.model<CommunityDocument, CommunityModel>("Community", CommunitySchema);
+ * ```
+ */
+export type CommunityDocument = mongoose.Document<
+  mongoose.Types.ObjectId,
+  CommunityQueries
+> &
+  CommunityMethods & {
+    name: string;
+    description?: string;
+    isVerified: boolean;
+    userId: UserDocument["_id"] | UserDocument;
+    profileImage?: string;
+    coverImaage?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+    _id: mongoose.Types.ObjectId;
+  };
+
+/**
+ * Lean version of LikeDocument
+ *
+ * This has all Mongoose getters & functions removed. This type will be returned from `LikeDocument.toObject()`. To avoid conflicts with model names, use the type alias `LikeObject`.
+ * ```
+ * const likeObject = like.toObject();
+ * ```
+ */
+export type Like = {
+  userId: User["_id"] | User;
+  postId: Post["_id"] | Post;
+  createdAt?: Date;
+  updatedAt?: Date;
+  _id: mongoose.Types.ObjectId;
+};
+
+/**
+ * Lean version of LikeDocument (type alias of `Like`)
+ *
+ * Use this type alias to avoid conflicts with model names:
+ * ```
+ * import { Like } from "../models"
+ * import { LikeObject } from "../interfaces/mongoose.gen.ts"
+ *
+ * const likeObject: LikeObject = like.toObject();
+ * ```
+ */
+export type LikeObject = Like;
+
+/**
+ * Mongoose Query type
+ *
+ * This type is returned from query functions. For most use cases, you should not need to use this type explicitly.
+ */
+export type LikeQuery = mongoose.Query<any, LikeDocument, LikeQueries> &
+  LikeQueries;
+
+/**
+ * Mongoose Query helper types
+ *
+ * This type represents `LikeSchema.query`. For most use cases, you should not need to use this type explicitly.
+ */
+export type LikeQueries = {};
+
+export type LikeMethods = {};
+
+export type LikeStatics = {};
+
+/**
+ * Mongoose Model type
+ *
+ * Pass this type to the Mongoose Model constructor:
+ * ```
+ * const Like = mongoose.model<LikeDocument, LikeModel>("Like", LikeSchema);
+ * ```
+ */
+export type LikeModel = mongoose.Model<LikeDocument, LikeQueries> & LikeStatics;
+
+/**
+ * Mongoose Schema type
+ *
+ * Assign this type to new Like schema instances:
+ * ```
+ * const LikeSchema: LikeSchema = new mongoose.Schema({ ... })
+ * ```
+ */
+export type LikeSchema = mongoose.Schema<
+  LikeDocument,
+  LikeModel,
+  LikeMethods,
+  LikeQueries
+>;
+
+/**
+ * Mongoose Document type
+ *
+ * Pass this type to the Mongoose Model constructor:
+ * ```
+ * const Like = mongoose.model<LikeDocument, LikeModel>("Like", LikeSchema);
+ * ```
+ */
+export type LikeDocument = mongoose.Document<
+  mongoose.Types.ObjectId,
+  LikeQueries
+> &
+  LikeMethods & {
+    userId: UserDocument["_id"] | UserDocument;
+    postId: PostDocument["_id"] | PostDocument;
+    createdAt?: Date;
+    updatedAt?: Date;
+    _id: mongoose.Types.ObjectId;
+  };
+
+/**
  * Lean version of PostDocument
  *
  * This has all Mongoose getters & functions removed. This type will be returned from `PostDocument.toObject()`. To avoid conflicts with model names, use the type alias `PostObject`.
@@ -19,8 +321,9 @@ export type Post = {
   title: string;
   content: string;
   isVerified: boolean;
-  community: string;
-  user: string;
+  communityId?: Community["_id"] | Community;
+  file?: string;
+  userId: User["_id"] | User;
   createdAt?: Date;
   updatedAt?: Date;
   _id: mongoose.Types.ObjectId;
@@ -99,8 +402,103 @@ export type PostDocument = mongoose.Document<
     title: string;
     content: string;
     isVerified: boolean;
-    community: string;
-    user: string;
+    communityId?: CommunityDocument["_id"] | CommunityDocument;
+    file?: string;
+    userId: UserDocument["_id"] | UserDocument;
+    createdAt?: Date;
+    updatedAt?: Date;
+    _id: mongoose.Types.ObjectId;
+  };
+
+/**
+ * Lean version of ShareDocument
+ *
+ * This has all Mongoose getters & functions removed. This type will be returned from `ShareDocument.toObject()`. To avoid conflicts with model names, use the type alias `ShareObject`.
+ * ```
+ * const shareObject = share.toObject();
+ * ```
+ */
+export type Share = {
+  userId: User["_id"] | User;
+  postId: Post["_id"] | Post;
+  createdAt?: Date;
+  updatedAt?: Date;
+  _id: mongoose.Types.ObjectId;
+};
+
+/**
+ * Lean version of ShareDocument (type alias of `Share`)
+ *
+ * Use this type alias to avoid conflicts with model names:
+ * ```
+ * import { Share } from "../models"
+ * import { ShareObject } from "../interfaces/mongoose.gen.ts"
+ *
+ * const shareObject: ShareObject = share.toObject();
+ * ```
+ */
+export type ShareObject = Share;
+
+/**
+ * Mongoose Query type
+ *
+ * This type is returned from query functions. For most use cases, you should not need to use this type explicitly.
+ */
+export type ShareQuery = mongoose.Query<any, ShareDocument, ShareQueries> &
+  ShareQueries;
+
+/**
+ * Mongoose Query helper types
+ *
+ * This type represents `ShareSchema.query`. For most use cases, you should not need to use this type explicitly.
+ */
+export type ShareQueries = {};
+
+export type ShareMethods = {};
+
+export type ShareStatics = {};
+
+/**
+ * Mongoose Model type
+ *
+ * Pass this type to the Mongoose Model constructor:
+ * ```
+ * const Share = mongoose.model<ShareDocument, ShareModel>("Share", ShareSchema);
+ * ```
+ */
+export type ShareModel = mongoose.Model<ShareDocument, ShareQueries> &
+  ShareStatics;
+
+/**
+ * Mongoose Schema type
+ *
+ * Assign this type to new Share schema instances:
+ * ```
+ * const ShareSchema: ShareSchema = new mongoose.Schema({ ... })
+ * ```
+ */
+export type ShareSchema = mongoose.Schema<
+  ShareDocument,
+  ShareModel,
+  ShareMethods,
+  ShareQueries
+>;
+
+/**
+ * Mongoose Document type
+ *
+ * Pass this type to the Mongoose Model constructor:
+ * ```
+ * const Share = mongoose.model<ShareDocument, ShareModel>("Share", ShareSchema);
+ * ```
+ */
+export type ShareDocument = mongoose.Document<
+  mongoose.Types.ObjectId,
+  ShareQueries
+> &
+  ShareMethods & {
+    userId: UserDocument["_id"] | UserDocument;
+    postId: PostDocument["_id"] | PostDocument;
     createdAt?: Date;
     updatedAt?: Date;
     _id: mongoose.Types.ObjectId;
@@ -124,6 +522,7 @@ export type User = {
   profileImage?: string;
   address?: string;
   isActive?: boolean;
+  bio?: string;
   createdAt?: Date;
   updatedAt?: Date;
   _id: mongoose.Types.ObjectId;
@@ -208,6 +607,7 @@ export type UserDocument = mongoose.Document<
     profileImage?: string;
     address?: string;
     isActive?: boolean;
+    bio?: string;
     createdAt?: Date;
     updatedAt?: Date;
     _id: mongoose.Types.ObjectId;
