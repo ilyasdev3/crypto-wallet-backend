@@ -1,0 +1,44 @@
+type Query {
+  getUserCommunities(id: ID!): [Community]
+}
+
+type CreateCommunityResponse {
+  name: String
+  description: String
+  isVerified: Boolean
+  userId: ID
+  profileImage: String
+  coverImage: String
+  createdAt: Date
+  updatedAt: Date
+  _id: ID
+}
+
+type Mutation {
+  createCommunity(community: CommunityInput!): CreateCommunityResponse
+  updateCommunity(id: ID!, community: CommunityInput!): String
+  deleteCommunity(id: ID!): String
+}
+
+scalar Upload
+
+type Community {
+  name: String
+  description: String
+  isVerified: Boolean
+  userId: ID
+  profileImage: String
+  coverImage: String
+  createdAt: Date
+  updatedAt: Date
+  _id: ID
+}
+
+input CommunityInput {
+  name: String!
+  description: String!
+  isVerified: Boolean
+  userId: ID!
+  profileImage: Upload
+  coverImage: Upload
+}
