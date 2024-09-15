@@ -1,0 +1,47 @@
+type Query {
+  getUserPosts(id: ID!): [Post]
+  getCommunityPosts(id: ID!): [Post]
+  getPost(id: ID!): Post
+  getAllPosts(filters: PostFilter): [Post]
+}
+
+input PostFilter {
+  title: String
+  content: String
+  length: Int
+}
+
+type CreatePostResponse {
+  message: String
+}
+
+type Post {
+  title: String
+  content: String
+  isVerified: Boolean
+  communityId: ID
+  file: String
+  userId: User
+  community: Community
+
+  createdAt: Date
+  updatedAt: Date
+  id: ID
+}
+
+input PostInput {
+  title: String
+  content: String
+  isVerified: Boolean
+  communityId: ID
+  file: Upload
+  userId: ID
+  createdAt: Date
+  updatedAt: Date
+}
+
+type Mutation {
+  createPost(post: PostInput!): CreatePostResponse
+  updatePost(id: ID!, post: PostInput!): String
+  deletePost(id: ID!): String
+}
