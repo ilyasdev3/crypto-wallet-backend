@@ -53,6 +53,8 @@ async function startServer() {
       expressMiddleware(server, {
         context: async ({ req, res }) => {
           const token = req.headers.authorization;
+          console.log("token", token);
+
           const { user, error } = await authMiddleware(token);
 
           return { user, error };
