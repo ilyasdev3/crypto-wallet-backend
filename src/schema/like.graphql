@@ -1,0 +1,25 @@
+type Query {
+  getLikes(id: ID!): [Like]
+  getUserLikes(id: ID!): [Like]
+  getPostLikes(id: ID!): [Like]
+}
+
+type Like {
+  userId: ID
+  postId: ID
+  createdAt: Date
+  updatedAt: Date
+}
+
+type Mutation {
+  createLike(like: LikeInput!): CreateLikeResponse
+}
+
+input LikeInput {
+  userId: ID
+  postId: ID
+}
+
+type CreateLikeResponse {
+  message: String
+}
