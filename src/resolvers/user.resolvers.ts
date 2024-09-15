@@ -1,5 +1,5 @@
 import { generateToken } from "./../utils/tokens";
-import { hashPassword } from "./../utils/password";
+import { comparePassword, hashPassword } from "./../utils/password";
 import { QueryResolvers, MutationResolvers } from "../types/types.generated";
 import { UserModel } from "../models/User.model";
 import { WalletModel } from "../models/Wallet.model";
@@ -11,7 +11,13 @@ import { uploadToCloudinary } from "../utils/uploadToCloudinary";
 export const userQueries: QueryResolvers<IContext> = {
   me: async (parent, __, { user, error }) => {
     if (error) throw error;
-    return user as any;
+    console.log("user", user);
+
+    const currentUser = await UserModel.findById(user.id);
+    // console.log("user", currentUser);
+    if (!currentUser) throw new Error("User not found");
+    // console.log("user", currentUser);
+    return currentUser as any;
   },
   getUser: async (parent, { id }, { error }) => {
     if (error) throw error;
@@ -105,5 +111,63 @@ export const userMutations: MutationResolvers = {
     const existingUser = await UserModel.findOne({ username: username });
     if (existingUser) throw new GraphQLError("Username already exists");
     return "Username available";
+  },
+  loginUser: async (parent, { user }) => {
+    // console.log("user at top", user);
+    const { username, password } = user;
+
+    console.log("username", username);
+    console.log("password", password);
+
+    if (!username || !password)
+      throw new GraphQLError("Username and password are required");
+
+    const existingUser = await UserModel.findOne({ username: username });
+
+    // console.log("existingUser", existingUser);
+
+    if (!existingUser) throw new GraphQLError("User not found");
+
+    const isPasswordCorrect = await comparePassword(
+      password,
+      existingUser.password
+    );
+    console.log("isPasswordCorrect", isPasswordCorrect);
+    if (!isPasswordCorrect) throw new GraphQLError("Incorrect password");
+
+    const token = generateToken(existingUser);
+
+    return {
+      message: "Login successful",
+      token: token,
+    };
+  },
+  updateUser: async (parent, { user }, { user: currentUser }) => {
+    console.log("user at top in update", user);
+    if (!user) throw new GraphQLError("User not found");
+
+    if (!currentUser._id) throw new GraphQLError("User not found");
+
+    const existingUser = await UserModel.findById(currentUser._id);
+    console.log("existingUser in update", existingUser);
+    if (!existingUser) throw new GraphQLError("User not found");
+
+    if (user.profileImage) {
+      user.profileImage = await uploadToCloudinary(user.profileImage);
+      console.log("profileImage", user.profileImage);
+      user.profileImage = user.profileImage.replace("https://", "");
+      console.log("profileImage", user.profileImage);
+    }
+
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      currentUser._id,
+      user,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    return "User updated successfully";
   },
 };
