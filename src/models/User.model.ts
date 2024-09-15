@@ -11,6 +11,7 @@ const userSchema: UserSchema = new Schema({
   profileImage: { type: String },
   address: { type: String },
   isActive: { type: Boolean, default: true },
+  bio: { type: String },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
