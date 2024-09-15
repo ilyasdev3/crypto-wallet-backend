@@ -61,15 +61,17 @@ export type Comment = {
   __typename?: "Comment";
   content?: Maybe<Scalars["String"]["output"]>;
   createdAt?: Maybe<Scalars["Date"]["output"]>;
+  id?: Maybe<Scalars["ID"]["output"]>;
   postId?: Maybe<Scalars["ID"]["output"]>;
   updatedAt?: Maybe<Scalars["Date"]["output"]>;
+  user?: Maybe<User>;
   userId?: Maybe<Scalars["ID"]["output"]>;
 };
 
 export type CommentInput = {
   content?: InputMaybe<Scalars["String"]["input"]>;
   postId?: InputMaybe<Scalars["ID"]["input"]>;
-  userId?: InputMaybe<Scalars["ID"]["input"]>;
+  user?: InputMaybe<Scalars["ID"]["input"]>;
 };
 
 export type Community = {
@@ -96,6 +98,7 @@ export type CommunityInput = {
 
 export type CreateCommentResponse = {
   __typename?: "CreateCommentResponse";
+  comment?: Maybe<Comment>;
   message?: Maybe<Scalars["String"]["output"]>;
 };
 
@@ -110,11 +113,6 @@ export type CreateCommunityResponse = {
   profileImage?: Maybe<Scalars["String"]["output"]>;
   updatedAt?: Maybe<Scalars["Date"]["output"]>;
   userId?: Maybe<Scalars["ID"]["output"]>;
-};
-
-export type CreateLikeResponse = {
-  __typename?: "CreateLikeResponse";
-  message?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type CreatePostResponse = {
@@ -138,19 +136,6 @@ export type Dataset = {
   data?: Maybe<Array<Maybe<Scalars["Float"]["output"]>>>;
 };
 
-export type Like = {
-  __typename?: "Like";
-  createdAt?: Maybe<Scalars["Date"]["output"]>;
-  postId?: Maybe<Scalars["ID"]["output"]>;
-  updatedAt?: Maybe<Scalars["Date"]["output"]>;
-  userId?: Maybe<Scalars["ID"]["output"]>;
-};
-
-export type LikeInput = {
-  postId?: InputMaybe<Scalars["ID"]["input"]>;
-  userId?: InputMaybe<Scalars["ID"]["input"]>;
-};
-
 export type LoginResponse = {
   __typename?: "LoginResponse";
   message?: Maybe<Scalars["String"]["output"]>;
@@ -162,7 +147,6 @@ export type Mutation = {
   checkUsername?: Maybe<Scalars["String"]["output"]>;
   createComment?: Maybe<CreateCommentResponse>;
   createCommunity?: Maybe<CreateCommunityResponse>;
-  createLike?: Maybe<CreateLikeResponse>;
   createPost?: Maybe<CreatePostResponse>;
   createShare?: Maybe<CreateShareResponse>;
   createUser?: Maybe<CreateUserResponse>;
@@ -170,6 +154,7 @@ export type Mutation = {
   deleteCommunity?: Maybe<Scalars["String"]["output"]>;
   deletePost?: Maybe<Scalars["String"]["output"]>;
   deleteUser?: Maybe<Scalars["String"]["output"]>;
+  doLike?: Maybe<Scalars["String"]["output"]>;
   loginUser?: Maybe<LoginResponse>;
   updateCommunity?: Maybe<Scalars["String"]["output"]>;
   updatePost?: Maybe<Scalars["String"]["output"]>;
@@ -187,10 +172,6 @@ export type MutationCreateCommentArgs = {
 
 export type MutationCreateCommunityArgs = {
   community: CommunityInput;
-};
-
-export type MutationCreateLikeArgs = {
-  like: LikeInput;
 };
 
 export type MutationCreatePostArgs = {
@@ -219,6 +200,10 @@ export type MutationDeletePostArgs = {
 
 export type MutationDeleteUserArgs = {
   id: Scalars["ID"]["input"];
+};
+
+export type MutationDoLikeArgs = {
+  postId: Scalars["ID"]["input"];
 };
 
 export type MutationLoginUserArgs = {
@@ -250,9 +235,11 @@ export type Post = {
   communityId?: Maybe<Scalars["ID"]["output"]>;
   content?: Maybe<Scalars["String"]["output"]>;
   createdAt?: Maybe<Scalars["Date"]["output"]>;
-  file?: Maybe<Scalars["String"]["output"]>;
   id?: Maybe<Scalars["ID"]["output"]>;
+  image?: Maybe<Scalars["String"]["output"]>;
   isVerified?: Maybe<Scalars["Boolean"]["output"]>;
+  likes?: Maybe<Array<Maybe<Scalars["ID"]["output"]>>>;
+  stats?: Maybe<PostStats>;
   title?: Maybe<Scalars["String"]["output"]>;
   updatedAt?: Maybe<Scalars["Date"]["output"]>;
   userId?: Maybe<User>;
@@ -268,11 +255,18 @@ export type PostInput = {
   communityId?: InputMaybe<Scalars["ID"]["input"]>;
   content?: InputMaybe<Scalars["String"]["input"]>;
   createdAt?: InputMaybe<Scalars["Date"]["input"]>;
-  file?: InputMaybe<Scalars["Upload"]["input"]>;
+  image?: InputMaybe<Scalars["Upload"]["input"]>;
   isVerified?: InputMaybe<Scalars["Boolean"]["input"]>;
   title?: InputMaybe<Scalars["String"]["input"]>;
   updatedAt?: InputMaybe<Scalars["Date"]["input"]>;
   userId?: InputMaybe<Scalars["ID"]["input"]>;
+};
+
+export type PostStats = {
+  __typename?: "PostStats";
+  totalComments?: Maybe<Scalars["Int"]["output"]>;
+  totalLikes?: Maybe<Scalars["Int"]["output"]>;
+  totalShares?: Maybe<Scalars["Int"]["output"]>;
 };
 
 export type Query = {
@@ -281,14 +275,11 @@ export type Query = {
   getCoinData: CoinData;
   getComments?: Maybe<Array<Maybe<Comment>>>;
   getCommunityPosts?: Maybe<Array<Maybe<Post>>>;
-  getLikes?: Maybe<Array<Maybe<Like>>>;
   getPost?: Maybe<Post>;
-  getPostLikes?: Maybe<Array<Maybe<Like>>>;
   getShares?: Maybe<Array<Maybe<Share>>>;
   getUser?: Maybe<User>;
   getUserComments?: Maybe<Array<Maybe<Comment>>>;
   getUserCommunities?: Maybe<Array<Maybe<Community>>>;
-  getUserLikes?: Maybe<Array<Maybe<Like>>>;
   getUserPosts?: Maybe<Array<Maybe<Post>>>;
   getUserShares?: Maybe<Array<Maybe<Share>>>;
   getWallet?: Maybe<Wallet>;
@@ -312,15 +303,7 @@ export type QueryGetCommunityPostsArgs = {
   id: Scalars["ID"]["input"];
 };
 
-export type QueryGetLikesArgs = {
-  id: Scalars["ID"]["input"];
-};
-
 export type QueryGetPostArgs = {
-  id: Scalars["ID"]["input"];
-};
-
-export type QueryGetPostLikesArgs = {
   id: Scalars["ID"]["input"];
 };
 
@@ -340,10 +323,6 @@ export type QueryGetUserCommunitiesArgs = {
   id: Scalars["ID"]["input"];
 };
 
-export type QueryGetUserLikesArgs = {
-  id: Scalars["ID"]["input"];
-};
-
 export type QueryGetUserPostsArgs = {
   id: Scalars["ID"]["input"];
 };
@@ -355,6 +334,7 @@ export type QueryGetUserSharesArgs = {
 export type Share = {
   __typename?: "Share";
   createdAt?: Maybe<Scalars["Date"]["output"]>;
+  id?: Maybe<Scalars["ID"]["output"]>;
   postId?: Maybe<Scalars["ID"]["output"]>;
   updatedAt?: Maybe<Scalars["Date"]["output"]>;
   userId?: Maybe<Scalars["ID"]["output"]>;
@@ -544,7 +524,6 @@ export type ResolversTypes = {
   CommunityInput: CommunityInput;
   CreateCommentResponse: ResolverTypeWrapper<CreateCommentResponse>;
   CreateCommunityResponse: ResolverTypeWrapper<CreateCommunityResponse>;
-  CreateLikeResponse: ResolverTypeWrapper<CreateLikeResponse>;
   CreatePostResponse: ResolverTypeWrapper<CreatePostResponse>;
   CreateShareResponse: ResolverTypeWrapper<CreateShareResponse>;
   CreateUserResponse: ResolverTypeWrapper<CreateUserResponse>;
@@ -552,8 +531,6 @@ export type ResolversTypes = {
   Date: ResolverTypeWrapper<Scalars["Date"]["output"]>;
   DateTime: ResolverTypeWrapper<Scalars["DateTime"]["output"]>;
   JSON: ResolverTypeWrapper<Scalars["JSON"]["output"]>;
-  Like: ResolverTypeWrapper<Like>;
-  LikeInput: LikeInput;
   LoginResponse: ResolverTypeWrapper<LoginResponse>;
   Mutation: ResolverTypeWrapper<{}>;
   ObjectId: ResolverTypeWrapper<Scalars["ObjectId"]["output"]>;
@@ -561,6 +538,7 @@ export type ResolversTypes = {
   PostFilter: PostFilter;
   Int: ResolverTypeWrapper<Scalars["Int"]["output"]>;
   PostInput: PostInput;
+  PostStats: ResolverTypeWrapper<PostStats>;
   Query: ResolverTypeWrapper<{}>;
   Share: ResolverTypeWrapper<Share>;
   ShareInput: ShareInput;
@@ -586,7 +564,6 @@ export type ResolversParentTypes = {
   CommunityInput: CommunityInput;
   CreateCommentResponse: CreateCommentResponse;
   CreateCommunityResponse: CreateCommunityResponse;
-  CreateLikeResponse: CreateLikeResponse;
   CreatePostResponse: CreatePostResponse;
   CreateShareResponse: CreateShareResponse;
   CreateUserResponse: CreateUserResponse;
@@ -594,8 +571,6 @@ export type ResolversParentTypes = {
   Date: Scalars["Date"]["output"];
   DateTime: Scalars["DateTime"]["output"];
   JSON: Scalars["JSON"]["output"];
-  Like: Like;
-  LikeInput: LikeInput;
   LoginResponse: LoginResponse;
   Mutation: {};
   ObjectId: Scalars["ObjectId"]["output"];
@@ -603,6 +578,7 @@ export type ResolversParentTypes = {
   PostFilter: PostFilter;
   Int: Scalars["Int"]["output"];
   PostInput: PostInput;
+  PostStats: PostStats;
   Query: {};
   Share: Share;
   ShareInput: ShareInput;
@@ -662,8 +638,10 @@ export type CommentResolvers<
 > = {
   content?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes["Date"]>, ParentType, ContextType>;
+  id?: Resolver<Maybe<ResolversTypes["ID"]>, ParentType, ContextType>;
   postId?: Resolver<Maybe<ResolversTypes["ID"]>, ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes["Date"]>, ParentType, ContextType>;
+  user?: Resolver<Maybe<ResolversTypes["User"]>, ParentType, ContextType>;
   userId?: Resolver<Maybe<ResolversTypes["ID"]>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -706,6 +684,7 @@ export type CreateCommentResponseResolvers<
   ParentType extends
     ResolversParentTypes["CreateCommentResponse"] = ResolversParentTypes["CreateCommentResponse"],
 > = {
+  comment?: Resolver<Maybe<ResolversTypes["Comment"]>, ParentType, ContextType>;
   message?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -740,15 +719,6 @@ export type CreateCommunityResponseResolvers<
   >;
   updatedAt?: Resolver<Maybe<ResolversTypes["Date"]>, ParentType, ContextType>;
   userId?: Resolver<Maybe<ResolversTypes["ID"]>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type CreateLikeResponseResolvers<
-  ContextType = any,
-  ParentType extends
-    ResolversParentTypes["CreateLikeResponse"] = ResolversParentTypes["CreateLikeResponse"],
-> = {
-  message?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -808,18 +778,6 @@ export interface JsonScalarConfig
   name: "JSON";
 }
 
-export type LikeResolvers<
-  ContextType = any,
-  ParentType extends
-    ResolversParentTypes["Like"] = ResolversParentTypes["Like"],
-> = {
-  createdAt?: Resolver<Maybe<ResolversTypes["Date"]>, ParentType, ContextType>;
-  postId?: Resolver<Maybe<ResolversTypes["ID"]>, ParentType, ContextType>;
-  updatedAt?: Resolver<Maybe<ResolversTypes["Date"]>, ParentType, ContextType>;
-  userId?: Resolver<Maybe<ResolversTypes["ID"]>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type LoginResponseResolvers<
   ContextType = any,
   ParentType extends
@@ -852,12 +810,6 @@ export type MutationResolvers<
     ParentType,
     ContextType,
     RequireFields<MutationCreateCommunityArgs, "community">
-  >;
-  createLike?: Resolver<
-    Maybe<ResolversTypes["CreateLikeResponse"]>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationCreateLikeArgs, "like">
   >;
   createPost?: Resolver<
     Maybe<ResolversTypes["CreatePostResponse"]>,
@@ -900,6 +852,12 @@ export type MutationResolvers<
     ParentType,
     ContextType,
     RequireFields<MutationDeleteUserArgs, "id">
+  >;
+  doLike?: Resolver<
+    Maybe<ResolversTypes["String"]>,
+    ParentType,
+    ContextType,
+    RequireFields<MutationDoLikeArgs, "postId">
   >;
   loginUser?: Resolver<
     Maybe<ResolversTypes["LoginResponse"]>,
@@ -951,16 +909,37 @@ export type PostResolvers<
   communityId?: Resolver<Maybe<ResolversTypes["ID"]>, ParentType, ContextType>;
   content?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes["Date"]>, ParentType, ContextType>;
-  file?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   id?: Resolver<Maybe<ResolversTypes["ID"]>, ParentType, ContextType>;
+  image?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   isVerified?: Resolver<
     Maybe<ResolversTypes["Boolean"]>,
     ParentType,
     ContextType
   >;
+  likes?: Resolver<
+    Maybe<Array<Maybe<ResolversTypes["ID"]>>>,
+    ParentType,
+    ContextType
+  >;
+  stats?: Resolver<Maybe<ResolversTypes["PostStats"]>, ParentType, ContextType>;
   title?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes["Date"]>, ParentType, ContextType>;
   userId?: Resolver<Maybe<ResolversTypes["User"]>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type PostStatsResolvers<
+  ContextType = any,
+  ParentType extends
+    ResolversParentTypes["PostStats"] = ResolversParentTypes["PostStats"],
+> = {
+  totalComments?: Resolver<
+    Maybe<ResolversTypes["Int"]>,
+    ParentType,
+    ContextType
+  >;
+  totalLikes?: Resolver<Maybe<ResolversTypes["Int"]>, ParentType, ContextType>;
+  totalShares?: Resolver<Maybe<ResolversTypes["Int"]>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -993,23 +972,11 @@ export type QueryResolvers<
     ContextType,
     RequireFields<QueryGetCommunityPostsArgs, "id">
   >;
-  getLikes?: Resolver<
-    Maybe<Array<Maybe<ResolversTypes["Like"]>>>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryGetLikesArgs, "id">
-  >;
   getPost?: Resolver<
     Maybe<ResolversTypes["Post"]>,
     ParentType,
     ContextType,
     RequireFields<QueryGetPostArgs, "id">
-  >;
-  getPostLikes?: Resolver<
-    Maybe<Array<Maybe<ResolversTypes["Like"]>>>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryGetPostLikesArgs, "id">
   >;
   getShares?: Resolver<
     Maybe<Array<Maybe<ResolversTypes["Share"]>>>,
@@ -1034,12 +1001,6 @@ export type QueryResolvers<
     ParentType,
     ContextType,
     RequireFields<QueryGetUserCommunitiesArgs, "id">
-  >;
-  getUserLikes?: Resolver<
-    Maybe<Array<Maybe<ResolversTypes["Like"]>>>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryGetUserLikesArgs, "id">
   >;
   getUserPosts?: Resolver<
     Maybe<Array<Maybe<ResolversTypes["Post"]>>>,
@@ -1067,6 +1028,7 @@ export type ShareResolvers<
     ResolversParentTypes["Share"] = ResolversParentTypes["Share"],
 > = {
   createdAt?: Resolver<Maybe<ResolversTypes["Date"]>, ParentType, ContextType>;
+  id?: Resolver<Maybe<ResolversTypes["ID"]>, ParentType, ContextType>;
   postId?: Resolver<Maybe<ResolversTypes["ID"]>, ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes["Date"]>, ParentType, ContextType>;
   userId?: Resolver<Maybe<ResolversTypes["ID"]>, ParentType, ContextType>;
@@ -1141,7 +1103,6 @@ export type Resolvers<ContextType = any> = {
   Community?: CommunityResolvers<ContextType>;
   CreateCommentResponse?: CreateCommentResponseResolvers<ContextType>;
   CreateCommunityResponse?: CreateCommunityResponseResolvers<ContextType>;
-  CreateLikeResponse?: CreateLikeResponseResolvers<ContextType>;
   CreatePostResponse?: CreatePostResponseResolvers<ContextType>;
   CreateShareResponse?: CreateShareResponseResolvers<ContextType>;
   CreateUserResponse?: CreateUserResponseResolvers<ContextType>;
@@ -1149,11 +1110,11 @@ export type Resolvers<ContextType = any> = {
   Date?: GraphQLScalarType;
   DateTime?: GraphQLScalarType;
   JSON?: GraphQLScalarType;
-  Like?: LikeResolvers<ContextType>;
   LoginResponse?: LoginResponseResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   ObjectId?: GraphQLScalarType;
   Post?: PostResolvers<ContextType>;
+  PostStats?: PostStatsResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Share?: ShareResolvers<ContextType>;
   Upload?: GraphQLScalarType;

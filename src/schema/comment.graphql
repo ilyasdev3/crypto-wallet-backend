@@ -3,10 +3,20 @@ type Query {
   getUserComments(id: ID!): [Comment]
 }
 
+type User {
+  id: ID
+  firstName: String
+  lastName: String
+  username: String
+  profileImage: String
+}
+
 type Comment {
-  userId: ID
+  id: ID
+  user: User
   postId: ID
   content: String
+
   createdAt: Date
   updatedAt: Date
 }
@@ -16,11 +26,12 @@ type Mutation {
 }
 
 input CommentInput {
-  userId: ID
+  user: ID
   postId: ID
   content: String
 }
 
 type CreateCommentResponse {
   message: String
+  comment: Comment
 }

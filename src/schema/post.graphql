@@ -15,18 +15,49 @@ type CreatePostResponse {
   message: String
 }
 
+type PostStats {
+  totalLikes: Int
+  totalComments: Int
+  totalShares: Int
+}
+
 type Post {
   title: String
   content: String
   isVerified: Boolean
   communityId: ID
-  file: String
-  userId: User
+  image: String
+  userId: User # Populate User data here
   community: Community
-
+  likes: [ID]
+  stats: PostStats
   createdAt: Date
   updatedAt: Date
   id: ID
+}
+
+type User {
+  id: ID
+  firstName: String
+  lastName: String
+  username: String
+  profileImage: String
+}
+
+type Comment {
+  id: ID
+  userId: ID # Changed from ID to User
+  user: User # Changed from ID to User
+  postId: ID
+  content: String
+  createdAt: Date
+}
+
+type Share {
+  id: ID
+  userId: ID
+  postId: ID
+  createdAt: Date
 }
 
 input PostInput {
@@ -34,7 +65,7 @@ input PostInput {
   content: String
   isVerified: Boolean
   communityId: ID
-  file: Upload
+  image: Upload
   userId: ID
   createdAt: Date
   updatedAt: Date
@@ -42,6 +73,7 @@ input PostInput {
 
 type Mutation {
   createPost(post: PostInput!): CreatePostResponse
+  doLike(postId: ID!): String
   updatePost(id: ID!, post: PostInput!): String
   deletePost(id: ID!): String
 }

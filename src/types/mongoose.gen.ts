@@ -16,7 +16,7 @@ import mongoose from "mongoose";
  * ```
  */
 export type Comment = {
-  userId: User["_id"] | User;
+  user: User["_id"] | User;
   postId: Post["_id"] | Post;
   content: string;
   createdAt?: Date;
@@ -99,7 +99,7 @@ export type CommentDocument = mongoose.Document<
   CommentQueries
 > &
   CommentMethods & {
-    userId: UserDocument["_id"] | UserDocument;
+    user: UserDocument["_id"] | UserDocument;
     postId: PostDocument["_id"] | PostDocument;
     content: string;
     createdAt?: Date;
@@ -217,97 +217,19 @@ export type CommunityDocument = mongoose.Document<
   };
 
 /**
- * Lean version of LikeDocument
+ * Lean version of PostStatDocument
  *
- * This has all Mongoose getters & functions removed. This type will be returned from `LikeDocument.toObject()`. To avoid conflicts with model names, use the type alias `LikeObject`.
+ * This has all Mongoose getters & functions removed. This type will be returned from `PostDocument.toObject()`.
  * ```
- * const likeObject = like.toObject();
+ * const postObject = post.toObject();
  * ```
  */
-export type Like = {
-  userId: User["_id"] | User;
-  postId: Post["_id"] | Post;
-  createdAt?: Date;
-  updatedAt?: Date;
+export type PostStat = {
+  totalLikes?: number;
+  totalComments?: number;
+  totalShares?: number;
   _id: mongoose.Types.ObjectId;
 };
-
-/**
- * Lean version of LikeDocument (type alias of `Like`)
- *
- * Use this type alias to avoid conflicts with model names:
- * ```
- * import { Like } from "../models"
- * import { LikeObject } from "../interfaces/mongoose.gen.ts"
- *
- * const likeObject: LikeObject = like.toObject();
- * ```
- */
-export type LikeObject = Like;
-
-/**
- * Mongoose Query type
- *
- * This type is returned from query functions. For most use cases, you should not need to use this type explicitly.
- */
-export type LikeQuery = mongoose.Query<any, LikeDocument, LikeQueries> &
-  LikeQueries;
-
-/**
- * Mongoose Query helper types
- *
- * This type represents `LikeSchema.query`. For most use cases, you should not need to use this type explicitly.
- */
-export type LikeQueries = {};
-
-export type LikeMethods = {};
-
-export type LikeStatics = {};
-
-/**
- * Mongoose Model type
- *
- * Pass this type to the Mongoose Model constructor:
- * ```
- * const Like = mongoose.model<LikeDocument, LikeModel>("Like", LikeSchema);
- * ```
- */
-export type LikeModel = mongoose.Model<LikeDocument, LikeQueries> & LikeStatics;
-
-/**
- * Mongoose Schema type
- *
- * Assign this type to new Like schema instances:
- * ```
- * const LikeSchema: LikeSchema = new mongoose.Schema({ ... })
- * ```
- */
-export type LikeSchema = mongoose.Schema<
-  LikeDocument,
-  LikeModel,
-  LikeMethods,
-  LikeQueries
->;
-
-/**
- * Mongoose Document type
- *
- * Pass this type to the Mongoose Model constructor:
- * ```
- * const Like = mongoose.model<LikeDocument, LikeModel>("Like", LikeSchema);
- * ```
- */
-export type LikeDocument = mongoose.Document<
-  mongoose.Types.ObjectId,
-  LikeQueries
-> &
-  LikeMethods & {
-    userId: UserDocument["_id"] | UserDocument;
-    postId: PostDocument["_id"] | PostDocument;
-    createdAt?: Date;
-    updatedAt?: Date;
-    _id: mongoose.Types.ObjectId;
-  };
 
 /**
  * Lean version of PostDocument
@@ -322,7 +244,10 @@ export type Post = {
   content: string;
   isVerified: boolean;
   communityId?: Community["_id"] | Community;
-  file?: string;
+  image?: string;
+  publicId?: string;
+  stats?: PostStat;
+  likes: (User["_id"] | User)[];
   userId: User["_id"] | User;
   createdAt?: Date;
   updatedAt?: Date;
@@ -394,6 +319,21 @@ export type PostSchema = mongoose.Schema<
  * const Post = mongoose.model<PostDocument, PostModel>("Post", PostSchema);
  * ```
  */
+export type PostStatDocument = mongoose.Document<mongoose.Types.ObjectId> & {
+  totalLikes?: number;
+  totalComments?: number;
+  totalShares?: number;
+  _id: mongoose.Types.ObjectId;
+};
+
+/**
+ * Mongoose Document type
+ *
+ * Pass this type to the Mongoose Model constructor:
+ * ```
+ * const Post = mongoose.model<PostDocument, PostModel>("Post", PostSchema);
+ * ```
+ */
 export type PostDocument = mongoose.Document<
   mongoose.Types.ObjectId,
   PostQueries
@@ -403,7 +343,10 @@ export type PostDocument = mongoose.Document<
     content: string;
     isVerified: boolean;
     communityId?: CommunityDocument["_id"] | CommunityDocument;
-    file?: string;
+    image?: string;
+    publicId?: string;
+    stats?: PostStatDocument;
+    likes: mongoose.Types.Array<UserDocument["_id"] | UserDocument>;
     userId: UserDocument["_id"] | UserDocument;
     createdAt?: Date;
     updatedAt?: Date;
