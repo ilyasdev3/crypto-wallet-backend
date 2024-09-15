@@ -9,9 +9,15 @@ type CreateUserResponse {
   token: String
 }
 
+type LoginResponse {
+  message: String
+  token: String
+}
+
 type Mutation {
   createUser(user: UserInput!): CreateUserResponse
-  updateUser(id: ID!, user: UserInput!): String
+  loginUser(user: UserInput!): LoginResponse
+  updateUser(user: UpdateUserInput!): String!
   checkUsername(username: String!): String
   deleteUser(id: ID!): String
 }
@@ -28,6 +34,7 @@ type User {
   profileImage: String
   address: String
   isVerified: Boolean
+  bio: String
   createdAt: Date
   updatedAt: Date
 }
@@ -39,6 +46,19 @@ input UserInput {
   lastName: String
   email: String
   phone: String
-  profileImage: Upload!
+  profileImage: Upload
   address: String
+  bio: String
+}
+
+input UpdateUserInput {
+  username: String
+  password: String
+  firstName: String
+  lastName: String
+  email: String
+  phone: String
+  profileImage: Upload
+  address: String
+  bio: String
 }
