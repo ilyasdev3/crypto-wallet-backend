@@ -1,0 +1,49 @@
+type Wallet {
+  userId: ID
+  address: String
+  privateKey: String
+  publicKey: String
+  mnemonic: String
+  balance: String
+  createdAt: Date
+  updatedAt: Date
+}
+
+input WalletInput {
+  address: String
+  privateKey: String
+  publicKey: String
+  mnemonic: String
+  balance: String
+}
+
+type ChartData {
+  labels: [String]
+  datasets: [Dataset]
+}
+
+type Dataset {
+  data: [Float]
+}
+
+type CoinData {
+  name: String
+  symbol: String
+  image: String
+  price: Float
+  volume: Float
+  changePercentage: Float
+  chartData: ChartData
+}
+
+type Query {
+  getWallet: Wallet
+  getCoinData(currency: String!, days: Int!): CoinData!
+}
+
+type Mutation {
+  createWallet(wallet: WalletInput!): String
+  updateWallet(id: ID!, wallet: WalletInput!): String
+}
+
+scalar Upload
