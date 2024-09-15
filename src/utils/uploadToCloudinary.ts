@@ -9,8 +9,6 @@ cloudinary.config({
 });
 
 // Upload an image
-const uploadResult = cloudinary.uploader;
-
 const uploadToCloudinary = async (base64Image: any) => {
   return new Promise((resolve, reject) => {
     cloudinary.uploader.upload(
