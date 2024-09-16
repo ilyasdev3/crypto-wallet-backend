@@ -12,6 +12,8 @@ const userSchema: UserSchema = new Schema({
   address: { type: String },
   isActive: { type: Boolean, default: true },
   bio: { type: String },
+  followers: { type: [Schema.Types.ObjectId], ref: "User" },
+  following: { type: [Schema.Types.ObjectId], ref: "User" },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
