@@ -466,6 +466,8 @@ export type User = {
   address?: string;
   isActive?: boolean;
   bio?: string;
+  followers: (User["_id"] | User)[];
+  following: (User["_id"] | User)[];
   createdAt?: Date;
   updatedAt?: Date;
   _id: mongoose.Types.ObjectId;
@@ -551,6 +553,8 @@ export type UserDocument = mongoose.Document<
     address?: string;
     isActive?: boolean;
     bio?: string;
+    followers: mongoose.Types.Array<UserDocument["_id"] | UserDocument>;
+    following: mongoose.Types.Array<UserDocument["_id"] | UserDocument>;
     createdAt?: Date;
     updatedAt?: Date;
     _id: mongoose.Types.ObjectId;

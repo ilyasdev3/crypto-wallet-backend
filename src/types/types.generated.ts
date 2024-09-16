@@ -364,6 +364,8 @@ export type User = {
   createdAt?: Maybe<Scalars["Date"]["output"]>;
   email?: Maybe<Scalars["String"]["output"]>;
   firstName?: Maybe<Scalars["String"]["output"]>;
+  followers?: Maybe<Array<Maybe<Scalars["ID"]["output"]>>>;
+  following?: Maybe<Array<Maybe<Scalars["ID"]["output"]>>>;
   id: Scalars["ID"]["output"];
   isVerified?: Maybe<Scalars["Boolean"]["output"]>;
   lastName?: Maybe<Scalars["String"]["output"]>;
@@ -1051,6 +1053,16 @@ export type UserResolvers<
   email?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   firstName?: Resolver<
     Maybe<ResolversTypes["String"]>,
+    ParentType,
+    ContextType
+  >;
+  followers?: Resolver<
+    Maybe<Array<Maybe<ResolversTypes["ID"]>>>,
+    ParentType,
+    ContextType
+  >;
+  following?: Resolver<
+    Maybe<Array<Maybe<ResolversTypes["ID"]>>>,
     ParentType,
     ContextType
   >;
