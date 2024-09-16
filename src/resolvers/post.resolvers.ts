@@ -119,32 +119,48 @@ export const postMutations: MutationResolvers<IContext> = {
   },
   doLike: async (parent, { postId }, { error, user }) => {
     if (error) throw error;
+    console.log("postId on top", postId);
 
     try {
       const post = await PostModel.findById(postId);
       if (!post) throw new Error("Post not found");
+
       const userId = user.id as any;
+      console.log("userId:", userId);
+      console.log("post:", post);
+
+      // Ensure stats field exists
+      const stats = post.stats || {
+        totalLikes: 0,
+        totalComments: 0,
+        totalShares: 0,
+      };
+      console.log("stats:", stats);
 
       const isliked = post.likes.includes(userId);
+      console.log("isliked", isliked);
+
       if (isliked) {
         // REMOVE LIKE
-        await PostModel.findByIdAndUpdate(postId, {
+        const result = await PostModel.findByIdAndUpdate(postId, {
           $pull: { likes: userId },
-          stats: { totalLikes: post.stats.totalLikes - 1 },
+          $set: { "stats.totalLikes": stats.totalLikes - 1 || 0 },
         });
-
-        //  update
+        console.log("Remove like result:", result);
 
         return "Liked removed successfully";
       } else {
         // ADD LIKE
-        await PostModel.findByIdAndUpdate(postId, {
+        const result = await PostModel.findByIdAndUpdate(postId, {
           $push: { likes: userId },
-          stats: { totalLikes: post.stats.totalLikes + 1 },
+          $set: { "stats.totalLikes": stats.totalLikes + 1 || 0 },
         });
+        console.log("Add like result:", result);
+
         return "Liked successfully";
       }
     } catch (error) {
+      console.error("Error caught in doLike:", error);
       throw new Error("Error liking post");
     }
   },
