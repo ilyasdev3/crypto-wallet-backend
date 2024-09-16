@@ -35,6 +35,8 @@ type User {
   address: String
   isVerified: Boolean
   bio: String
+  followers: [ID]
+  following: [ID]
   createdAt: Date
   updatedAt: Date
 }
