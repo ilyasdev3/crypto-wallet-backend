@@ -15,10 +15,12 @@ export const commentQueries: QueryResolvers<IContext> = {
   getComments: async (parent, { id }, { error }) => {
     console.log("id", id);
     if (error) throw error;
-    const comments = await CommentModel.find({ postId: id }).populate({
-      path: "user",
-      select: "firstName lastName username _id profileImage",
-    });
+    const comments = await CommentModel.find({ postId: id })
+      .populate({
+        path: "user",
+        select: "firstName lastName username _id profileImage",
+      })
+      .sort({ createdAt: -1 });
     console.log("comments", comments);
 
     return comments as any;
