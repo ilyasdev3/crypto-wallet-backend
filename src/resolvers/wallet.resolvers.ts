@@ -8,6 +8,8 @@ import { IContext } from "../types/context.types";
 import { createWallet } from "../utils/createWallet";
 import { uploadToCloudinary } from "../utils/uploadToCloudinary";
 import axios from "axios";
+import { getWalletBalance, transfer } from "../contract/contractMethods";
+export const contractAddress = "0x1B5A0792A1B712d855eBa0AE8b477F8F02a549E1";
 
 export const walletQueries: QueryResolvers<IContext> = {
   getWallet: async (parent, __, { user, error }) => {
@@ -21,7 +23,27 @@ export const walletQueries: QueryResolvers<IContext> = {
     console.log("wallet", wallet);
 
     if (!wallet) throw new Error("Wallet not found");
-    return wallet as any;
+
+    const getWallletBalance = await getWalletBalance(
+      contractAddress,
+      wallet.privateKey
+    );
+    // console.log("getWalletBalance", getWallletBalance);
+
+    // await transfer(contractAddress, "0.01", wallet.privateKey);
+
+    const walletWithBalance = {
+      userId: wallet.userId,
+      address: wallet.address,
+      privateKey: wallet.privateKey,
+      publicKey: wallet.publicKey,
+      mnemonic: wallet.mnemonic,
+      balance: getWallletBalance,
+      createdAt: wallet.createdAt,
+      updatedAt: wallet.updatedAt,
+    };
+
+    return walletWithBalance as any;
   },
 
   getCoinData: async (parent, { currency, days }, { error }) => {
