@@ -3,6 +3,7 @@ type Query {
   getCommunityPosts(id: ID!): [Post]
   getPost(id: ID!): Post
   getAllPosts(filters: PostFilter): [Post]
+  getFollowingPosts: [Post]
 }
 
 input PostFilter {
