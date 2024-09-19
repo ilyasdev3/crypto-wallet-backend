@@ -155,6 +155,7 @@ export type Mutation = {
   deletePost?: Maybe<Scalars["String"]["output"]>;
   deleteUser?: Maybe<Scalars["String"]["output"]>;
   doLike?: Maybe<Scalars["String"]["output"]>;
+  followUnfollowUser?: Maybe<Scalars["String"]["output"]>;
   loginUser?: Maybe<LoginResponse>;
   updateCommunity?: Maybe<Scalars["String"]["output"]>;
   updatePost?: Maybe<Scalars["String"]["output"]>;
@@ -204,6 +205,10 @@ export type MutationDeleteUserArgs = {
 
 export type MutationDoLikeArgs = {
   postId: Scalars["ID"]["input"];
+};
+
+export type MutationFollowUnfollowUserArgs = {
+  userId: Scalars["ID"]["input"];
 };
 
 export type MutationLoginUserArgs = {
@@ -275,11 +280,14 @@ export type Query = {
   getCoinData: CoinData;
   getComments?: Maybe<Array<Maybe<Comment>>>;
   getCommunityPosts?: Maybe<Array<Maybe<Post>>>;
+  getFollowingPosts?: Maybe<Array<Maybe<Post>>>;
   getPost?: Maybe<Post>;
   getShares?: Maybe<Array<Maybe<Share>>>;
   getUser?: Maybe<User>;
   getUserComments?: Maybe<Array<Maybe<Comment>>>;
   getUserCommunities?: Maybe<Array<Maybe<Community>>>;
+  getUserFollowers?: Maybe<Array<Maybe<User>>>;
+  getUserFollowing?: Maybe<Array<Maybe<User>>>;
   getUserPosts?: Maybe<Array<Maybe<Post>>>;
   getUserShares?: Maybe<Array<Maybe<Share>>>;
   getWallet?: Maybe<Wallet>;
@@ -320,6 +328,14 @@ export type QueryGetUserCommentsArgs = {
 };
 
 export type QueryGetUserCommunitiesArgs = {
+  id: Scalars["ID"]["input"];
+};
+
+export type QueryGetUserFollowersArgs = {
+  id: Scalars["ID"]["input"];
+};
+
+export type QueryGetUserFollowingArgs = {
   id: Scalars["ID"]["input"];
 };
 
@@ -861,6 +877,12 @@ export type MutationResolvers<
     ContextType,
     RequireFields<MutationDoLikeArgs, "postId">
   >;
+  followUnfollowUser?: Resolver<
+    Maybe<ResolversTypes["String"]>,
+    ParentType,
+    ContextType,
+    RequireFields<MutationFollowUnfollowUserArgs, "userId">
+  >;
   loginUser?: Resolver<
     Maybe<ResolversTypes["LoginResponse"]>,
     ParentType,
@@ -974,6 +996,11 @@ export type QueryResolvers<
     ContextType,
     RequireFields<QueryGetCommunityPostsArgs, "id">
   >;
+  getFollowingPosts?: Resolver<
+    Maybe<Array<Maybe<ResolversTypes["Post"]>>>,
+    ParentType,
+    ContextType
+  >;
   getPost?: Resolver<
     Maybe<ResolversTypes["Post"]>,
     ParentType,
@@ -1003,6 +1030,18 @@ export type QueryResolvers<
     ParentType,
     ContextType,
     RequireFields<QueryGetUserCommunitiesArgs, "id">
+  >;
+  getUserFollowers?: Resolver<
+    Maybe<Array<Maybe<ResolversTypes["User"]>>>,
+    ParentType,
+    ContextType,
+    RequireFields<QueryGetUserFollowersArgs, "id">
+  >;
+  getUserFollowing?: Resolver<
+    Maybe<Array<Maybe<ResolversTypes["User"]>>>,
+    ParentType,
+    ContextType,
+    RequireFields<QueryGetUserFollowingArgs, "id">
   >;
   getUserPosts?: Resolver<
     Maybe<Array<Maybe<ResolversTypes["Post"]>>>,
