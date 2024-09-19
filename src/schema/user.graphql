@@ -1,6 +1,8 @@
 type Query {
   getUser(id: ID!): User
   me: User
+  getUserFollowing(id: ID!): [User]
+  getUserFollowers(id: ID!): [User]
 }
 
 type CreateUserResponse {
@@ -20,6 +22,7 @@ type Mutation {
   updateUser(user: UpdateUserInput!): String!
   checkUsername(username: String!): String
   deleteUser(id: ID!): String
+  followUnfollowUser(userId: ID!): String
 }
 
 scalar Upload
