@@ -3,10 +3,12 @@ import { comparePassword, hashPassword } from "./../utils/password";
 import { QueryResolvers, MutationResolvers } from "../types/types.generated";
 import { UserModel } from "../models/User.model";
 import { WalletModel } from "../models/Wallet.model";
+import { PostModel } from "../models/Post.model";
 import { GraphQLError } from "graphql";
 import { IContext } from "../types/context.types";
 import { createWallet } from "../utils/createWallet";
 import { uploadToCloudinary } from "../utils/uploadToCloudinary";
+import mongoose from "mongoose";
 
 export const userQueries: QueryResolvers<IContext> = {
   me: async (parent, __, { user, error }) => {
@@ -24,6 +26,65 @@ export const userQueries: QueryResolvers<IContext> = {
     const user = await UserModel.findById(id);
     if (!user) throw new Error("User not found");
     return user as any;
+  },
+
+  getUserFollowing: async (parent, { id }, { error }) => {
+    if (error) throw error;
+
+    const findUser = await UserModel.findById(id).lean();
+    if (!findUser) throw new Error("User not found");
+
+    if (findUser.following && findUser.following.length > 0) {
+      const followingUsers = await Promise.all(
+        findUser.following.map(async (followingId) => {
+          const followingUser = await UserModel.findById(followingId);
+          return followingUser;
+        })
+      );
+      return followingUsers.filter(Boolean) as any[];
+    }
+    return [];
+  },
+
+  getUserFollowers: async (parent, { id }, { error }) => {
+    if (error) throw error;
+
+    const findUser = await UserModel.findById(id);
+    if (!findUser) throw new Error("User not found");
+
+    if (findUser.followers && findUser.followers.length > 0) {
+      const followersUsers = await Promise.all(
+        findUser.followers.map(async (followerId) => {
+          const followerUser = await UserModel.findById(followerId);
+          return followerUser;
+        })
+      );
+      return followersUsers.filter(Boolean) as any[];
+    }
+    return [];
+  },
+
+  getFollowingPosts: async (parent, __, { error, user }) => {
+    if (error) throw error;
+
+    const findUser = await UserModel.findById(user.id);
+    if (!findUser) throw new Error("User not found");
+    if (findUser.following && findUser.following.length > 0) {
+      const followingUsers = await Promise.all(
+        findUser.following.map(async (followingId) => {
+          const followingUser = await UserModel.findById(followingId);
+          return followingUser;
+        })
+      );
+      const posts = await PostModel.find({
+        userId: { $in: followingUsers },
+      }).populate({
+        path: "userId",
+        select: "firstName lastName username _id profileImage",
+      });
+      return posts as any;
+    }
+    return [];
   },
 };
 
@@ -169,5 +230,43 @@ export const userMutations: MutationResolvers = {
     );
 
     return "User updated successfully";
+  },
+  followUnfollowUser: async (parent, { userId }, { user, error }) => {
+    if (error) throw error;
+    console.log("userId", userId);
+    console.log("user", user);
+
+    if (!user) throw new Error("User not found");
+
+    const currentUser = await UserModel.findById(user.id);
+    if (!currentUser) throw new Error("User not found");
+
+    const userToFollow = await UserModel.findById(userId);
+    if (!userToFollow) throw new Error("User not found");
+
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
+    if (currentUser.following.includes(userObjectId)) {
+      // REMOVE FOLLOW
+      await UserModel.findByIdAndUpdate(currentUser._id, {
+        $pull: { following: userObjectId },
+      });
+
+      await UserModel.findByIdAndUpdate(userToFollow._id, {
+        $pull: { followers: currentUser._id },
+      });
+
+      return "Unfollowed successfully";
+    } else {
+      // ADD FOLLOW
+      await UserModel.findByIdAndUpdate(currentUser._id, {
+        $push: { following: userObjectId },
+      });
+
+      await UserModel.findByIdAndUpdate(userToFollow._id, {
+        $push: { followers: currentUser._id },
+      });
+      return "Followed successfully";
+    }
   },
 };
