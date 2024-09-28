@@ -96,6 +96,27 @@ export type CommunityInput = {
   userId: Scalars["ID"]["input"];
 };
 
+export type Contract = {
+  __typename?: "Contract";
+  abi?: Maybe<Scalars["JSON"]["output"]>;
+  contractAddress?: Maybe<Scalars["String"]["output"]>;
+  createdAt?: Maybe<Scalars["Date"]["output"]>;
+  name?: Maybe<Scalars["String"]["output"]>;
+  network?: Maybe<Scalars["String"]["output"]>;
+  provider?: Maybe<Scalars["String"]["output"]>;
+  updatedAt?: Maybe<Scalars["Date"]["output"]>;
+  userId?: Maybe<Scalars["ID"]["output"]>;
+};
+
+export type ContractInput = {
+  abi?: InputMaybe<Scalars["String"]["input"]>;
+  contractAddress: Scalars["String"]["input"];
+  name: Scalars["String"]["input"];
+  network?: InputMaybe<Scalars["String"]["input"]>;
+  provider?: InputMaybe<Scalars["String"]["input"]>;
+  userId?: InputMaybe<Scalars["ID"]["input"]>;
+};
+
 export type CreateCommentResponse = {
   __typename?: "CreateCommentResponse";
   comment?: Maybe<Comment>;
@@ -113,6 +134,11 @@ export type CreateCommunityResponse = {
   profileImage?: Maybe<Scalars["String"]["output"]>;
   updatedAt?: Maybe<Scalars["Date"]["output"]>;
   userId?: Maybe<Scalars["ID"]["output"]>;
+};
+
+export type CreateContractResponse = {
+  __typename?: "CreateContractResponse";
+  message?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type CreatePostResponse = {
@@ -147,6 +173,7 @@ export type Mutation = {
   checkUsername?: Maybe<Scalars["String"]["output"]>;
   createComment?: Maybe<CreateCommentResponse>;
   createCommunity?: Maybe<CreateCommunityResponse>;
+  createContract?: Maybe<CreateContractResponse>;
   createPost?: Maybe<CreatePostResponse>;
   createShare?: Maybe<CreateShareResponse>;
   createUser?: Maybe<CreateUserResponse>;
@@ -157,6 +184,7 @@ export type Mutation = {
   doLike?: Maybe<Scalars["String"]["output"]>;
   followUnfollowUser?: Maybe<Scalars["String"]["output"]>;
   loginUser?: Maybe<LoginResponse>;
+  transferFunds?: Maybe<TransferFundsResponse>;
   updateCommunity?: Maybe<Scalars["String"]["output"]>;
   updatePost?: Maybe<Scalars["String"]["output"]>;
   updateUser: Scalars["String"]["output"];
@@ -173,6 +201,10 @@ export type MutationCreateCommentArgs = {
 
 export type MutationCreateCommunityArgs = {
   community: CommunityInput;
+};
+
+export type MutationCreateContractArgs = {
+  contract: ContractInput;
 };
 
 export type MutationCreatePostArgs = {
@@ -213,6 +245,10 @@ export type MutationFollowUnfollowUserArgs = {
 
 export type MutationLoginUserArgs = {
   user: UserInput;
+};
+
+export type MutationTransferFundsArgs = {
+  transferFunds: TransferFundsInput;
 };
 
 export type MutationUpdateCommunityArgs = {
@@ -280,6 +316,7 @@ export type Query = {
   getCoinData: CoinData;
   getComments?: Maybe<Array<Maybe<Comment>>>;
   getCommunityPosts?: Maybe<Array<Maybe<Post>>>;
+  getContracts?: Maybe<Array<Maybe<Contract>>>;
   getFollowingPosts?: Maybe<Array<Maybe<Post>>>;
   getPost?: Maybe<Post>;
   getShares?: Maybe<Array<Maybe<Share>>>;
@@ -359,6 +396,16 @@ export type Share = {
 export type ShareInput = {
   postId?: InputMaybe<Scalars["ID"]["input"]>;
   userId?: InputMaybe<Scalars["ID"]["input"]>;
+};
+
+export type TransferFundsInput = {
+  address: Scalars["String"]["input"];
+  amount: Scalars["String"]["input"];
+};
+
+export type TransferFundsResponse = {
+  __typename?: "TransferFundsResponse";
+  message?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type UpdateUserInput = {
@@ -540,8 +587,11 @@ export type ResolversTypes = {
   Community: ResolverTypeWrapper<Community>;
   Boolean: ResolverTypeWrapper<Scalars["Boolean"]["output"]>;
   CommunityInput: CommunityInput;
+  Contract: ResolverTypeWrapper<Contract>;
+  ContractInput: ContractInput;
   CreateCommentResponse: ResolverTypeWrapper<CreateCommentResponse>;
   CreateCommunityResponse: ResolverTypeWrapper<CreateCommunityResponse>;
+  CreateContractResponse: ResolverTypeWrapper<CreateContractResponse>;
   CreatePostResponse: ResolverTypeWrapper<CreatePostResponse>;
   CreateShareResponse: ResolverTypeWrapper<CreateShareResponse>;
   CreateUserResponse: ResolverTypeWrapper<CreateUserResponse>;
@@ -560,6 +610,8 @@ export type ResolversTypes = {
   Query: ResolverTypeWrapper<{}>;
   Share: ResolverTypeWrapper<Share>;
   ShareInput: ShareInput;
+  TransferFundsInput: TransferFundsInput;
+  TransferFundsResponse: ResolverTypeWrapper<TransferFundsResponse>;
   UpdateUserInput: UpdateUserInput;
   Upload: ResolverTypeWrapper<Scalars["Upload"]["output"]>;
   User: ResolverTypeWrapper<User>;
@@ -580,8 +632,11 @@ export type ResolversParentTypes = {
   Community: Community;
   Boolean: Scalars["Boolean"]["output"];
   CommunityInput: CommunityInput;
+  Contract: Contract;
+  ContractInput: ContractInput;
   CreateCommentResponse: CreateCommentResponse;
   CreateCommunityResponse: CreateCommunityResponse;
+  CreateContractResponse: CreateContractResponse;
   CreatePostResponse: CreatePostResponse;
   CreateShareResponse: CreateShareResponse;
   CreateUserResponse: CreateUserResponse;
@@ -600,6 +655,8 @@ export type ResolversParentTypes = {
   Query: {};
   Share: Share;
   ShareInput: ShareInput;
+  TransferFundsInput: TransferFundsInput;
+  TransferFundsResponse: TransferFundsResponse;
   UpdateUserInput: UpdateUserInput;
   Upload: Scalars["Upload"]["output"];
   User: User;
@@ -697,6 +754,26 @@ export type CommunityResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type ContractResolvers<
+  ContextType = any,
+  ParentType extends
+    ResolversParentTypes["Contract"] = ResolversParentTypes["Contract"],
+> = {
+  abi?: Resolver<Maybe<ResolversTypes["JSON"]>, ParentType, ContextType>;
+  contractAddress?: Resolver<
+    Maybe<ResolversTypes["String"]>,
+    ParentType,
+    ContextType
+  >;
+  createdAt?: Resolver<Maybe<ResolversTypes["Date"]>, ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  network?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  provider?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  updatedAt?: Resolver<Maybe<ResolversTypes["Date"]>, ParentType, ContextType>;
+  userId?: Resolver<Maybe<ResolversTypes["ID"]>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type CreateCommentResponseResolvers<
   ContextType = any,
   ParentType extends
@@ -737,6 +814,15 @@ export type CreateCommunityResponseResolvers<
   >;
   updatedAt?: Resolver<Maybe<ResolversTypes["Date"]>, ParentType, ContextType>;
   userId?: Resolver<Maybe<ResolversTypes["ID"]>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CreateContractResponseResolvers<
+  ContextType = any,
+  ParentType extends
+    ResolversParentTypes["CreateContractResponse"] = ResolversParentTypes["CreateContractResponse"],
+> = {
+  message?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -829,6 +915,12 @@ export type MutationResolvers<
     ContextType,
     RequireFields<MutationCreateCommunityArgs, "community">
   >;
+  createContract?: Resolver<
+    Maybe<ResolversTypes["CreateContractResponse"]>,
+    ParentType,
+    ContextType,
+    RequireFields<MutationCreateContractArgs, "contract">
+  >;
   createPost?: Resolver<
     Maybe<ResolversTypes["CreatePostResponse"]>,
     ParentType,
@@ -888,6 +980,12 @@ export type MutationResolvers<
     ParentType,
     ContextType,
     RequireFields<MutationLoginUserArgs, "user">
+  >;
+  transferFunds?: Resolver<
+    Maybe<ResolversTypes["TransferFundsResponse"]>,
+    ParentType,
+    ContextType,
+    RequireFields<MutationTransferFundsArgs, "transferFunds">
   >;
   updateCommunity?: Resolver<
     Maybe<ResolversTypes["String"]>,
@@ -996,6 +1094,11 @@ export type QueryResolvers<
     ContextType,
     RequireFields<QueryGetCommunityPostsArgs, "id">
   >;
+  getContracts?: Resolver<
+    Maybe<Array<Maybe<ResolversTypes["Contract"]>>>,
+    ParentType,
+    ContextType
+  >;
   getFollowingPosts?: Resolver<
     Maybe<Array<Maybe<ResolversTypes["Post"]>>>,
     ParentType,
@@ -1076,6 +1179,15 @@ export type ShareResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type TransferFundsResponseResolvers<
+  ContextType = any,
+  ParentType extends
+    ResolversParentTypes["TransferFundsResponse"] = ResolversParentTypes["TransferFundsResponse"],
+> = {
+  message?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export interface UploadScalarConfig
   extends GraphQLScalarTypeConfig<ResolversTypes["Upload"], any> {
   name: "Upload";
@@ -1152,8 +1264,10 @@ export type Resolvers<ContextType = any> = {
   CoinData?: CoinDataResolvers<ContextType>;
   Comment?: CommentResolvers<ContextType>;
   Community?: CommunityResolvers<ContextType>;
+  Contract?: ContractResolvers<ContextType>;
   CreateCommentResponse?: CreateCommentResponseResolvers<ContextType>;
   CreateCommunityResponse?: CreateCommunityResponseResolvers<ContextType>;
+  CreateContractResponse?: CreateContractResponseResolvers<ContextType>;
   CreatePostResponse?: CreatePostResponseResolvers<ContextType>;
   CreateShareResponse?: CreateShareResponseResolvers<ContextType>;
   CreateUserResponse?: CreateUserResponseResolvers<ContextType>;
@@ -1168,6 +1282,7 @@ export type Resolvers<ContextType = any> = {
   PostStats?: PostStatsResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Share?: ShareResolvers<ContextType>;
+  TransferFundsResponse?: TransferFundsResponseResolvers<ContextType>;
   Upload?: GraphQLScalarType;
   User?: UserResolvers<ContextType>;
   Wallet?: WalletResolvers<ContextType>;

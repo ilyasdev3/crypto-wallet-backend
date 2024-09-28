@@ -217,6 +217,223 @@ export type CommunityDocument = mongoose.Document<
   };
 
 /**
+ * Lean version of ContractDocument
+ *
+ * This has all Mongoose getters & functions removed. This type will be returned from `ContractDocument.toObject()`. To avoid conflicts with model names, use the type alias `ContractObject`.
+ * ```
+ * const contractObject = contract.toObject();
+ * ```
+ */
+export type Contract = {
+  name: string;
+  contractAddress: string;
+  provider: string;
+  abi?: any[];
+  network: string;
+  userId: User["_id"] | User;
+  createdAt?: Date;
+  updatedAt?: Date;
+  _id: mongoose.Types.ObjectId;
+};
+
+/**
+ * Lean version of ContractDocument (type alias of `Contract`)
+ *
+ * Use this type alias to avoid conflicts with model names:
+ * ```
+ * import { Contract } from "../models"
+ * import { ContractObject } from "../interfaces/mongoose.gen.ts"
+ *
+ * const contractObject: ContractObject = contract.toObject();
+ * ```
+ */
+export type ContractObject = Contract;
+
+/**
+ * Mongoose Query type
+ *
+ * This type is returned from query functions. For most use cases, you should not need to use this type explicitly.
+ */
+export type ContractQuery = mongoose.Query<
+  any,
+  ContractDocument,
+  ContractQueries
+> &
+  ContractQueries;
+
+/**
+ * Mongoose Query helper types
+ *
+ * This type represents `ContractSchema.query`. For most use cases, you should not need to use this type explicitly.
+ */
+export type ContractQueries = {};
+
+export type ContractMethods = {};
+
+export type ContractStatics = {};
+
+/**
+ * Mongoose Model type
+ *
+ * Pass this type to the Mongoose Model constructor:
+ * ```
+ * const Contract = mongoose.model<ContractDocument, ContractModel>("Contract", ContractSchema);
+ * ```
+ */
+export type ContractModel = mongoose.Model<ContractDocument, ContractQueries> &
+  ContractStatics;
+
+/**
+ * Mongoose Schema type
+ *
+ * Assign this type to new Contract schema instances:
+ * ```
+ * const ContractSchema: ContractSchema = new mongoose.Schema({ ... })
+ * ```
+ */
+export type ContractSchema = mongoose.Schema<
+  ContractDocument,
+  ContractModel,
+  ContractMethods,
+  ContractQueries
+>;
+
+/**
+ * Mongoose Document type
+ *
+ * Pass this type to the Mongoose Model constructor:
+ * ```
+ * const Contract = mongoose.model<ContractDocument, ContractModel>("Contract", ContractSchema);
+ * ```
+ */
+export type ContractDocument = mongoose.Document<
+  mongoose.Types.ObjectId,
+  ContractQueries
+> &
+  ContractMethods & {
+    name: string;
+    contractAddress: string;
+    provider: string;
+    abi?: mongoose.Types.Array<any>;
+    network: string;
+    userId: UserDocument["_id"] | UserDocument;
+    createdAt?: Date;
+    updatedAt?: Date;
+    _id: mongoose.Types.ObjectId;
+  };
+
+/**
+ * Lean version of NotificationDocument
+ *
+ * This has all Mongoose getters & functions removed. This type will be returned from `NotificationDocument.toObject()`. To avoid conflicts with model names, use the type alias `NotificationObject`.
+ * ```
+ * const notificationObject = notification.toObject();
+ * ```
+ */
+export type Notification = {
+  userId: User["_id"] | User;
+  title: string;
+  message: string;
+  type: "like" | "follow" | "comment" | "share" | "post" | "wallet";
+  status: "unread" | "read" | "archived";
+  data?: any;
+  url?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  _id: mongoose.Types.ObjectId;
+};
+
+/**
+ * Lean version of NotificationDocument (type alias of `Notification`)
+ *
+ * Use this type alias to avoid conflicts with model names:
+ * ```
+ * import { Notification } from "../models"
+ * import { NotificationObject } from "../interfaces/mongoose.gen.ts"
+ *
+ * const notificationObject: NotificationObject = notification.toObject();
+ * ```
+ */
+export type NotificationObject = Notification;
+
+/**
+ * Mongoose Query type
+ *
+ * This type is returned from query functions. For most use cases, you should not need to use this type explicitly.
+ */
+export type NotificationQuery = mongoose.Query<
+  any,
+  NotificationDocument,
+  NotificationQueries
+> &
+  NotificationQueries;
+
+/**
+ * Mongoose Query helper types
+ *
+ * This type represents `NotificationSchema.query`. For most use cases, you should not need to use this type explicitly.
+ */
+export type NotificationQueries = {};
+
+export type NotificationMethods = {};
+
+export type NotificationStatics = {};
+
+/**
+ * Mongoose Model type
+ *
+ * Pass this type to the Mongoose Model constructor:
+ * ```
+ * const Notification = mongoose.model<NotificationDocument, NotificationModel>("Notification", NotificationSchema);
+ * ```
+ */
+export type NotificationModel = mongoose.Model<
+  NotificationDocument,
+  NotificationQueries
+> &
+  NotificationStatics;
+
+/**
+ * Mongoose Schema type
+ *
+ * Assign this type to new Notification schema instances:
+ * ```
+ * const NotificationSchema: NotificationSchema = new mongoose.Schema({ ... })
+ * ```
+ */
+export type NotificationSchema = mongoose.Schema<
+  NotificationDocument,
+  NotificationModel,
+  NotificationMethods,
+  NotificationQueries
+>;
+
+/**
+ * Mongoose Document type
+ *
+ * Pass this type to the Mongoose Model constructor:
+ * ```
+ * const Notification = mongoose.model<NotificationDocument, NotificationModel>("Notification", NotificationSchema);
+ * ```
+ */
+export type NotificationDocument = mongoose.Document<
+  mongoose.Types.ObjectId,
+  NotificationQueries
+> &
+  NotificationMethods & {
+    userId: UserDocument["_id"] | UserDocument;
+    title: string;
+    message: string;
+    type: "like" | "follow" | "comment" | "share" | "post" | "wallet";
+    status: "unread" | "read" | "archived";
+    data?: any;
+    url?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+    _id: mongoose.Types.ObjectId;
+  };
+
+/**
  * Lean version of PostStatDocument
  *
  * This has all Mongoose getters & functions removed. This type will be returned from `PostDocument.toObject()`.
