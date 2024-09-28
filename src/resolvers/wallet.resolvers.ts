@@ -1,24 +1,19 @@
 import { generateToken } from "./../utils/tokens";
 import { comparePassword, hashPassword } from "./../utils/password";
-import { QueryResolvers, MutationResolvers } from "../types/types.generated";
-import { UserModel } from "../models/User.model";
 import { WalletModel } from "../models/Wallet.model";
-import { GraphQLError } from "graphql";
 import { IContext } from "../types/context.types";
-import { createWallet } from "../utils/createWallet";
-import { uploadToCloudinary } from "../utils/uploadToCloudinary";
+
 import axios from "axios";
 import { getWalletBalance, transfer } from "../contract/contractMethods";
-export const contractAddress = "0x1B5A0792A1B712d855eBa0AE8b477F8F02a549E1";
+import { MutationResolvers, QueryResolvers } from "../types/types.generated";
+// export const contractAddress = "0x080c78d90209bb9bFA0bACff759761cC1FBf35ff";
+export const contractAddress = "0x57467aA72c2980CeC0455A489Fe4B1eeB1De4A21";
 
 export const walletQueries: QueryResolvers<IContext> = {
   getWallet: async (parent, __, { user, error }) => {
-    console.log("user at top", user);
-    console.log("error at top", user.id);
 
     if (error) throw error;
 
-    console.log("user", user);
     const wallet = await WalletModel.findOne({ userId: user.id });
     console.log("wallet", wallet);
 
@@ -28,9 +23,7 @@ export const walletQueries: QueryResolvers<IContext> = {
       contractAddress,
       wallet.privateKey
     );
-    // console.log("getWalletBalance", getWallletBalance);
-
-    // await transfer(contractAddress, "0.01", wallet.privateKey);
+    console.log("getWalletBalance", getWallletBalance);
 
     const walletWithBalance = {
       userId: wallet.userId,
@@ -45,6 +38,7 @@ export const walletQueries: QueryResolvers<IContext> = {
 
     return walletWithBalance as any;
   },
+
 
   getCoinData: async (parent, { currency, days }, { error }) => {
     if (error) throw error;
@@ -84,4 +78,27 @@ export const walletQueries: QueryResolvers<IContext> = {
   },
 };
 
-export const walletMutations: MutationResolvers = {};
+export const walletMutations: MutationResolvers = {
+  transferFunds: async (parent, { transferFunds }, { error, user }) => {
+    if (error) throw error;
+    console.log("user at top", user); 
+    const { amount, address } = transferFunds;
+    console.log("amount", amount);
+    console.log("address", address);
+    try {
+      const getWallet = await WalletModel.findOne({ userId: user.id });
+      console.log("getWallet", getWallet);
+      
+      const tx = await transfer(contractAddress, amount, getWallet.privateKey,address);
+      if(tx.hash){
+      return {
+        message: "Funds transferred successfully",
+      };
+      } 
+    } catch (error) {
+      console.error("Error in transferFunds:", error);
+      throw new Error("Error transferring funds");
+    }
+  },
+
+};
