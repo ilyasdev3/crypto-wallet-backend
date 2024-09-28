@@ -41,9 +41,19 @@ type Query {
   getCoinData(currency: String!, days: Int!): CoinData!
 }
 
+type TransferFundsResponse {
+  message: String
+}
+
+input TransferFundsInput {
+  amount: String!
+  address: String!
+}
+
 type Mutation {
   createWallet(wallet: WalletInput!): String
   updateWallet(id: ID!, wallet: WalletInput!): String
+  transferFunds(transferFunds: TransferFundsInput!): TransferFundsResponse
 }
 
 scalar Upload
