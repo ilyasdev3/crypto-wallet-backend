@@ -1,0 +1,35 @@
+type Query {
+  getContracts: [Contract]
+}
+
+
+type Contract {
+  name: String
+  contractAddress: String
+  provider: String
+  abi:JSON
+  network: String
+  userId: ID
+  createdAt: Date
+  updatedAt: Date
+}
+
+type Mutation {
+  createContract(contract: ContractInput!): CreateContractResponse
+}
+
+input ContractInput {
+  name: String!
+  contractAddress: String!
+  provider: String
+  abi: String
+  network: String
+  userId: ID
+}
+
+type CreateContractResponse {
+  message: String
+}
+
+
+scalar Upload
