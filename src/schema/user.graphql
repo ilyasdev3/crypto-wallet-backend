@@ -25,6 +25,18 @@ type Mutation {
   followUnfollowUser(userId: ID!): String
 }
 
+input UserInput {
+  username: String!
+  password: String!
+  firstName: String
+  lastName: String
+  email: String
+  phone: String
+  profileImage: Upload
+  address: String
+  bio: String
+}
+
 scalar Upload
 
 type User {
@@ -42,18 +54,6 @@ type User {
   following: [ID]
   createdAt: Date
   updatedAt: Date
-}
-
-input UserInput {
-  username: String!
-  password: String!
-  firstName: String
-  lastName: String
-  email: String
-  phone: String
-  profileImage: Upload
-  address: String
-  bio: String
 }
 
 input UpdateUserInput {
