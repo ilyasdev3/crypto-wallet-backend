@@ -1,0 +1,7 @@
+type Transaction {
+  id: ID!
+  amount: Int!
+  address: String!
+  createdAt: String!
+  updatedAt: String!
+}
