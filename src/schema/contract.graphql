@@ -2,12 +2,11 @@ type Query {
   getContracts: [Contract]
 }
 
-
 type Contract {
   name: String
   contractAddress: String
   provider: String
-  abi:JSON
+  abi: JSON
   network: String
   userId: ID
   createdAt: Date
@@ -22,7 +21,7 @@ input ContractInput {
   name: String!
   contractAddress: String!
   provider: String
-  abi: String
+  abi: JSON
   network: String
   userId: ID
 }
@@ -30,6 +29,5 @@ input ContractInput {
 type CreateContractResponse {
   message: String
 }
-
 
 scalar Upload
