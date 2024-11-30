@@ -109,7 +109,7 @@ export type Contract = {
 };
 
 export type ContractInput = {
-  abi?: InputMaybe<Scalars["String"]["input"]>;
+  abi?: InputMaybe<Scalars["JSON"]["input"]>;
   contractAddress: Scalars["String"]["input"];
   name: Scalars["String"]["input"];
   network?: InputMaybe<Scalars["String"]["input"]>;
@@ -398,6 +398,15 @@ export type ShareInput = {
   userId?: InputMaybe<Scalars["ID"]["input"]>;
 };
 
+export type Transaction = {
+  __typename?: "Transaction";
+  address: Scalars["String"]["output"];
+  amount: Scalars["Int"]["output"];
+  createdAt: Scalars["String"]["output"];
+  id: Scalars["ID"]["output"];
+  updatedAt: Scalars["String"]["output"];
+};
+
 export type TransferFundsInput = {
   address: Scalars["String"]["input"];
   amount: Scalars["String"]["input"];
@@ -610,6 +619,7 @@ export type ResolversTypes = {
   Query: ResolverTypeWrapper<{}>;
   Share: ResolverTypeWrapper<Share>;
   ShareInput: ShareInput;
+  Transaction: ResolverTypeWrapper<Transaction>;
   TransferFundsInput: TransferFundsInput;
   TransferFundsResponse: ResolverTypeWrapper<TransferFundsResponse>;
   UpdateUserInput: UpdateUserInput;
@@ -655,6 +665,7 @@ export type ResolversParentTypes = {
   Query: {};
   Share: Share;
   ShareInput: ShareInput;
+  Transaction: Transaction;
   TransferFundsInput: TransferFundsInput;
   TransferFundsResponse: TransferFundsResponse;
   UpdateUserInput: UpdateUserInput;
@@ -1179,6 +1190,19 @@ export type ShareResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type TransactionResolvers<
+  ContextType = any,
+  ParentType extends
+    ResolversParentTypes["Transaction"] = ResolversParentTypes["Transaction"],
+> = {
+  address?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  amount?: Resolver<ResolversTypes["Int"], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes["ID"], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes["String"], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type TransferFundsResponseResolvers<
   ContextType = any,
   ParentType extends
@@ -1282,6 +1306,7 @@ export type Resolvers<ContextType = any> = {
   PostStats?: PostStatsResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Share?: ShareResolvers<ContextType>;
+  Transaction?: TransactionResolvers<ContextType>;
   TransferFundsResponse?: TransferFundsResponseResolvers<ContextType>;
   Upload?: GraphQLScalarType;
   User?: UserResolvers<ContextType>;

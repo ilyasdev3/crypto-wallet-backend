@@ -18,8 +18,41 @@ import { resolvers } from "./resolvers";
 import { typeDefs } from "./types/typeDefs.generated";
 
 const app = express();
-
 const httpServer = http.createServer(app);
+
+// Define allowed origins
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://studio.apollographql.com",
+  "https://sandbox.apollo.dev",
+];
+
+const corsOptions = {
+  origin: function (
+    origin: string | undefined,
+    callback: (err: Error | null, allow?: boolean) => void
+  ) {
+    // Allow requests with no origin (like Apollo Sandbox or Postman)
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log("Blocked origin:", origin); // For debugging
+      callback(null, false); // Don't throw error, just block the request
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization", "apollo-require-preflight"],
+};
+
+// Apply CORS middleware to all routes
+app.use(cors(corsOptions));
 
 const schema = makeExecutableSchema({
   typeDefs,
@@ -43,20 +76,18 @@ const server = new ApolloServer({
 async function startServer() {
   try {
     await connectToDB();
-
     await server.start();
+
     app.use(
       "/graphql",
       graphqlUploadExpress({ maxFileSize: 1000000000, maxFiles: 1 }),
       bodyParser.json({ limit: "50mb" }),
-      cors({ origin: "*" }),
       expressMiddleware(server, {
         context: async ({ req, res }) => {
           const token = req.headers.authorization;
           console.log("token", token);
 
           const { user, error } = await authMiddleware(token);
-
           return { user, error };
         },
       })
