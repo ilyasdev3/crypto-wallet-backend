@@ -228,7 +228,7 @@ export type Contract = {
   name: string;
   contractAddress: string;
   provider: string;
-  abi?: any[];
+  abi?: string;
   network: string;
   userId: User["_id"] | User;
   createdAt?: Date;
@@ -314,7 +314,7 @@ export type ContractDocument = mongoose.Document<
     name: string;
     contractAddress: string;
     provider: string;
-    abi?: mongoose.Types.Array<any>;
+    abi?: string;
     network: string;
     userId: UserDocument["_id"] | UserDocument;
     createdAt?: Date;
@@ -659,6 +659,115 @@ export type ShareDocument = mongoose.Document<
   ShareMethods & {
     userId: UserDocument["_id"] | UserDocument;
     postId: PostDocument["_id"] | PostDocument;
+    createdAt?: Date;
+    updatedAt?: Date;
+    _id: mongoose.Types.ObjectId;
+  };
+
+/**
+ * Lean version of TransactionDocument
+ *
+ * This has all Mongoose getters & functions removed. This type will be returned from `TransactionDocument.toObject()`. To avoid conflicts with model names, use the type alias `TransactionObject`.
+ * ```
+ * const transactionObject = transaction.toObject();
+ * ```
+ */
+export type Transaction = {
+  senderWalletId: Wallet["_id"] | Wallet;
+  receiverWalletId: Wallet["_id"] | Wallet;
+  contractId: Contract["_id"] | Contract;
+  transactionHash: string;
+  amount: string;
+  status: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  _id: mongoose.Types.ObjectId;
+};
+
+/**
+ * Lean version of TransactionDocument (type alias of `Transaction`)
+ *
+ * Use this type alias to avoid conflicts with model names:
+ * ```
+ * import { Transaction } from "../models"
+ * import { TransactionObject } from "../interfaces/mongoose.gen.ts"
+ *
+ * const transactionObject: TransactionObject = transaction.toObject();
+ * ```
+ */
+export type TransactionObject = Transaction;
+
+/**
+ * Mongoose Query type
+ *
+ * This type is returned from query functions. For most use cases, you should not need to use this type explicitly.
+ */
+export type TransactionQuery = mongoose.Query<
+  any,
+  TransactionDocument,
+  TransactionQueries
+> &
+  TransactionQueries;
+
+/**
+ * Mongoose Query helper types
+ *
+ * This type represents `TransactionSchema.query`. For most use cases, you should not need to use this type explicitly.
+ */
+export type TransactionQueries = {};
+
+export type TransactionMethods = {};
+
+export type TransactionStatics = {};
+
+/**
+ * Mongoose Model type
+ *
+ * Pass this type to the Mongoose Model constructor:
+ * ```
+ * const Transaction = mongoose.model<TransactionDocument, TransactionModel>("Transaction", TransactionSchema);
+ * ```
+ */
+export type TransactionModel = mongoose.Model<
+  TransactionDocument,
+  TransactionQueries
+> &
+  TransactionStatics;
+
+/**
+ * Mongoose Schema type
+ *
+ * Assign this type to new Transaction schema instances:
+ * ```
+ * const TransactionSchema: TransactionSchema = new mongoose.Schema({ ... })
+ * ```
+ */
+export type TransactionSchema = mongoose.Schema<
+  TransactionDocument,
+  TransactionModel,
+  TransactionMethods,
+  TransactionQueries
+>;
+
+/**
+ * Mongoose Document type
+ *
+ * Pass this type to the Mongoose Model constructor:
+ * ```
+ * const Transaction = mongoose.model<TransactionDocument, TransactionModel>("Transaction", TransactionSchema);
+ * ```
+ */
+export type TransactionDocument = mongoose.Document<
+  mongoose.Types.ObjectId,
+  TransactionQueries
+> &
+  TransactionMethods & {
+    senderWalletId: WalletDocument["_id"] | WalletDocument;
+    receiverWalletId: WalletDocument["_id"] | WalletDocument;
+    contractId: ContractDocument["_id"] | ContractDocument;
+    transactionHash: string;
+    amount: string;
+    status: string;
     createdAt?: Date;
     updatedAt?: Date;
     _id: mongoose.Types.ObjectId;
