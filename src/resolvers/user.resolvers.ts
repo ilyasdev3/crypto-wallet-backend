@@ -86,6 +86,16 @@ export const userQueries: QueryResolvers<IContext> = {
     }
     return [];
   },
+  getUserWithName: async (parent, { username }, { error }) => {
+    if (error) throw error;
+    const user = await UserModel.findOne({ username: username });
+    if (!user) throw new GraphQLError("User not found");
+
+    return {
+      user: user as any,
+      message: "User found successfully",
+    };
+  },
 };
 
 export const userMutations: MutationResolvers = {
