@@ -47,6 +47,15 @@ type TransferFundsResponse {
 
 input TransferFundsInput {
   amount: String!
+  username: String!
+}
+
+type WithdrawFundsResponse {
+  message: String
+}
+
+input WithdrawFundsInput {
+  amount: String!
   address: String!
 }
 
@@ -54,6 +63,7 @@ type Mutation {
   createWallet(wallet: WalletInput!): String
   updateWallet(id: ID!, wallet: WalletInput!): String
   transferFunds(transferFunds: TransferFundsInput!): TransferFundsResponse
+  withdrawFunds(withdrawFunds: WithdrawFundsInput!): WithdrawFundsResponse
 }
 
 scalar Upload

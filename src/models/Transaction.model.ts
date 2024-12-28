@@ -14,7 +14,7 @@ const transactionSchema: TransactionSchema = new Schema({
   receiverWalletId: {
     type: Schema.Types.ObjectId,
     ref: "Wallet",
-    required: true,
+    required: false,
   },
   contractId: { type: Schema.Types.ObjectId, ref: "Contract", required: true },
   transactionHash: { type: String, required: true },

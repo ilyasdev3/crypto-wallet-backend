@@ -3,6 +3,12 @@ type Query {
   me: User
   getUserFollowing(id: ID!): [User]
   getUserFollowers(id: ID!): [User]
+  getUserWithName(username: String!): getUserWithNameResponse
+}
+
+type getUserWithNameResponse {
+  user: User
+  message: String
 }
 
 type CreateUserResponse {

@@ -1,7 +1,12 @@
 type Transaction {
-  id: ID!
-  amount: Int!
-  address: String!
-  createdAt: String!
-  updatedAt: String!
+  id: ID
+  amount: Int
+  address: String
+  status: String
+  senderWalletId: ID
+  receiverWalletId: ID
+  contractId: ID
+  transactionHash: String
+  createdAt: String
+  updatedAt: String
 }
