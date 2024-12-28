@@ -1,7 +1,9 @@
+// server.ts
 import { authMiddleware } from "./middlewares/auth.middleware";
 import path from "path";
 import dotenv from "dotenv";
 dotenv.config({ path: path.join(__dirname, "..", ".env") });
+import "./services/transactionCronjob.service"; // Import the cron job service
 
 import cors from "cors";
 import http from "http";
