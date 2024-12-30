@@ -4,6 +4,10 @@ import { userQueries, userMutations } from "./user.resolvers";
 import { walletQueries, walletMutations } from "./wallet.resolvers";
 import { commentMutations, commentQueries } from "./comment.resolvers";
 import { contractQueries, contractMutations } from "./contract.resolvers";
+import {
+  transactionQueries,
+  transactionMutations,
+} from "./transaction.resolvers";
 
 export const resolvers: Resolvers = {
   Query: {
@@ -12,6 +16,7 @@ export const resolvers: Resolvers = {
     ...postQueries,
     ...commentQueries,
     ...contractQueries,
+    ...transactionQueries,
   },
   Mutation: {
     ...userMutations,
@@ -19,5 +24,6 @@ export const resolvers: Resolvers = {
     ...postMutations,
     ...commentMutations,
     ...contractMutations,
+    ...transactionMutations,
   },
 };
