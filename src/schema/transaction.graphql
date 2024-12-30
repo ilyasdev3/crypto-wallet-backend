@@ -7,6 +7,31 @@ type Transaction {
   receiverWalletId: ID
   contractId: ID
   transactionHash: String
+  type: String
   createdAt: String
   updatedAt: String
+}
+
+input UserTransactionInput {
+  type: String
+  filter: String
+}
+
+type Query {
+  getTransactions: [Transaction]
+  getUserTransactions(input: UserTransactionInput): [Transaction]
+}
+
+type Mutation {
+  createTransaction(transaction: TransactionInput!): Transaction
+}
+
+input TransactionInput {
+  amount: Int
+  address: String
+  status: String
+  senderWalletId: ID
+  receiverWalletId: ID
+  contractId: ID
+  transactionHash: String
 }
