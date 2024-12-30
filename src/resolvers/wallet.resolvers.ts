@@ -124,6 +124,7 @@ export const walletMutations: MutationResolvers = {
           "Funds transfer initiated. You will be notified when the transaction status changes.",
       };
 
+      // transaction for sender
       txPromise
         .then(async (tx) => {
           const transaction = new TransactionModel({
@@ -133,11 +134,25 @@ export const walletMutations: MutationResolvers = {
             transactionHash: tx.hash,
             amount: amount,
             status: "pending",
+            type: "send",
+          });
+
+          // transaction for recipient
+          const transaction2 = new TransactionModel({
+            senderWalletId: currUserWallet._id,
+            receiverWalletId: recipientWallet._id,
+            contractId: currUserWallet._id,
+            transactionHash: tx.hash,
+            amount: amount,
+            status: "pending",
+            type: "receive",
           });
 
           await transaction.save();
+          await transaction2.save();
 
           startTransactionCronJob(tx.hash, transaction._id);
+          startTransactionCronJob(tx.hash, transaction2._id);
 
           console.log(
             "Transaction initiated on blockchain, monitoring started..."
@@ -184,6 +199,7 @@ export const walletMutations: MutationResolvers = {
             transactionHash: tx.hash,
             amount: amount,
             status: "pending",
+            type: "withdraw",
           });
 
           await transaction.save();
