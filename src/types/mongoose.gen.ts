@@ -679,6 +679,7 @@ export type Transaction = {
   transactionHash: string;
   amount: string;
   status: string;
+  type: string;
   createdAt?: Date;
   updatedAt?: Date;
   _id: mongoose.Types.ObjectId;
@@ -768,6 +769,7 @@ export type TransactionDocument = mongoose.Document<
     transactionHash: string;
     amount: string;
     status: string;
+    type: string;
     createdAt?: Date;
     updatedAt?: Date;
     _id: mongoose.Types.ObjectId;
