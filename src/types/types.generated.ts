@@ -457,6 +457,7 @@ export type TransferFundsResponse = {
 export type UpdateUserInput = {
   address?: InputMaybe<Scalars["String"]["input"]>;
   bio?: InputMaybe<Scalars["String"]["input"]>;
+  coverImage?: InputMaybe<Scalars["Upload"]["input"]>;
   email?: InputMaybe<Scalars["String"]["input"]>;
   firstName?: InputMaybe<Scalars["String"]["input"]>;
   lastName?: InputMaybe<Scalars["String"]["input"]>;
@@ -470,6 +471,7 @@ export type User = {
   __typename?: "User";
   address?: Maybe<Scalars["String"]["output"]>;
   bio?: Maybe<Scalars["String"]["output"]>;
+  coverImage?: Maybe<Scalars["String"]["output"]>;
   createdAt?: Maybe<Scalars["Date"]["output"]>;
   email?: Maybe<Scalars["String"]["output"]>;
   firstName?: Maybe<Scalars["String"]["output"]>;
@@ -487,6 +489,7 @@ export type User = {
 export type UserInput = {
   address?: InputMaybe<Scalars["String"]["input"]>;
   bio?: InputMaybe<Scalars["String"]["input"]>;
+  coverImage?: InputMaybe<Scalars["Upload"]["input"]>;
   email?: InputMaybe<Scalars["String"]["input"]>;
   firstName?: InputMaybe<Scalars["String"]["input"]>;
   lastName?: InputMaybe<Scalars["String"]["input"]>;
@@ -1347,6 +1350,11 @@ export type UserResolvers<
 > = {
   address?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   bio?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  coverImage?: Resolver<
+    Maybe<ResolversTypes["String"]>,
+    ParentType,
+    ContextType
+  >;
   createdAt?: Resolver<Maybe<ResolversTypes["Date"]>, ParentType, ContextType>;
   email?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   firstName?: Resolver<
