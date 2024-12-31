@@ -20,6 +20,7 @@ const transactionSchema: TransactionSchema = new Schema({
   transactionHash: { type: String, required: true },
   amount: { type: String, required: true },
   status: { type: String, required: true, default: "pending" },
+  type: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

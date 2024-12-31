@@ -229,6 +229,12 @@ export const userMutations: MutationResolvers = {
       user.profileImage = user.profileImage.replace("https://", "");
       console.log("profileImage", user.profileImage);
     }
+    if (user.coverImage) {
+      user.coverImage = await uploadToCloudinary(user.coverImage);
+      console.log("coverImage", user.coverImage);
+      user.coverImage = user.coverImage.replace("https://", "");
+      console.log("coverImage", user.coverImage);
+    }
 
     const updatedUser = await UserModel.findByIdAndUpdate(
       currentUser._id,

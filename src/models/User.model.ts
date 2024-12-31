@@ -9,6 +9,7 @@ const userSchema: UserSchema = new Schema({
   email: { type: String },
   phone: { type: String },
   profileImage: { type: String },
+  coverImage: { type: String, required: false },
   address: { type: String },
   isActive: { type: Boolean, default: true },
   bio: { type: String },

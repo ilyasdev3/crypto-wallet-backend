@@ -176,6 +176,7 @@ export type Mutation = {
   createContract?: Maybe<CreateContractResponse>;
   createPost?: Maybe<CreatePostResponse>;
   createShare?: Maybe<CreateShareResponse>;
+  createTransaction?: Maybe<Transaction>;
   createUser?: Maybe<CreateUserResponse>;
   createWallet?: Maybe<Scalars["String"]["output"]>;
   deleteCommunity?: Maybe<Scalars["String"]["output"]>;
@@ -214,6 +215,10 @@ export type MutationCreatePostArgs = {
 
 export type MutationCreateShareArgs = {
   share: ShareInput;
+};
+
+export type MutationCreateTransactionArgs = {
+  transaction: TransactionInput;
 };
 
 export type MutationCreateUserArgs = {
@@ -325,6 +330,7 @@ export type Query = {
   getFollowingPosts?: Maybe<Array<Maybe<Post>>>;
   getPost?: Maybe<Post>;
   getShares?: Maybe<Array<Maybe<Share>>>;
+  getTransactions?: Maybe<Array<Maybe<Transaction>>>;
   getUser?: Maybe<User>;
   getUserComments?: Maybe<Array<Maybe<Comment>>>;
   getUserCommunities?: Maybe<Array<Maybe<Community>>>;
@@ -332,6 +338,7 @@ export type Query = {
   getUserFollowing?: Maybe<Array<Maybe<User>>>;
   getUserPosts?: Maybe<Array<Maybe<Post>>>;
   getUserShares?: Maybe<Array<Maybe<Share>>>;
+  getUserTransactions?: Maybe<Array<Maybe<Transaction>>>;
   getUserWithName?: Maybe<GetUserWithNameResponse>;
   getWallet?: Maybe<Wallet>;
   me?: Maybe<User>;
@@ -390,6 +397,10 @@ export type QueryGetUserSharesArgs = {
   id: Scalars["ID"]["input"];
 };
 
+export type QueryGetUserTransactionsArgs = {
+  input?: InputMaybe<UserTransactionInput>;
+};
+
 export type QueryGetUserWithNameArgs = {
   username: Scalars["String"]["input"];
 };
@@ -419,7 +430,18 @@ export type Transaction = {
   senderWalletId?: Maybe<Scalars["ID"]["output"]>;
   status?: Maybe<Scalars["String"]["output"]>;
   transactionHash?: Maybe<Scalars["String"]["output"]>;
+  type?: Maybe<Scalars["String"]["output"]>;
   updatedAt?: Maybe<Scalars["String"]["output"]>;
+};
+
+export type TransactionInput = {
+  address?: InputMaybe<Scalars["String"]["input"]>;
+  amount?: InputMaybe<Scalars["Int"]["input"]>;
+  contractId?: InputMaybe<Scalars["ID"]["input"]>;
+  receiverWalletId?: InputMaybe<Scalars["ID"]["input"]>;
+  senderWalletId?: InputMaybe<Scalars["ID"]["input"]>;
+  status?: InputMaybe<Scalars["String"]["input"]>;
+  transactionHash?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type TransferFundsInput = {
@@ -435,6 +457,7 @@ export type TransferFundsResponse = {
 export type UpdateUserInput = {
   address?: InputMaybe<Scalars["String"]["input"]>;
   bio?: InputMaybe<Scalars["String"]["input"]>;
+  coverImage?: InputMaybe<Scalars["Upload"]["input"]>;
   email?: InputMaybe<Scalars["String"]["input"]>;
   firstName?: InputMaybe<Scalars["String"]["input"]>;
   lastName?: InputMaybe<Scalars["String"]["input"]>;
@@ -448,6 +471,7 @@ export type User = {
   __typename?: "User";
   address?: Maybe<Scalars["String"]["output"]>;
   bio?: Maybe<Scalars["String"]["output"]>;
+  coverImage?: Maybe<Scalars["String"]["output"]>;
   createdAt?: Maybe<Scalars["Date"]["output"]>;
   email?: Maybe<Scalars["String"]["output"]>;
   firstName?: Maybe<Scalars["String"]["output"]>;
@@ -465,6 +489,7 @@ export type User = {
 export type UserInput = {
   address?: InputMaybe<Scalars["String"]["input"]>;
   bio?: InputMaybe<Scalars["String"]["input"]>;
+  coverImage?: InputMaybe<Scalars["Upload"]["input"]>;
   email?: InputMaybe<Scalars["String"]["input"]>;
   firstName?: InputMaybe<Scalars["String"]["input"]>;
   lastName?: InputMaybe<Scalars["String"]["input"]>;
@@ -472,6 +497,11 @@ export type UserInput = {
   phone?: InputMaybe<Scalars["String"]["input"]>;
   profileImage?: InputMaybe<Scalars["Upload"]["input"]>;
   username: Scalars["String"]["input"];
+};
+
+export type UserTransactionInput = {
+  filter?: InputMaybe<Scalars["String"]["input"]>;
+  type?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type Wallet = {
@@ -651,12 +681,14 @@ export type ResolversTypes = {
   Share: ResolverTypeWrapper<Share>;
   ShareInput: ShareInput;
   Transaction: ResolverTypeWrapper<Transaction>;
+  TransactionInput: TransactionInput;
   TransferFundsInput: TransferFundsInput;
   TransferFundsResponse: ResolverTypeWrapper<TransferFundsResponse>;
   UpdateUserInput: UpdateUserInput;
   Upload: ResolverTypeWrapper<Scalars["Upload"]["output"]>;
   User: ResolverTypeWrapper<User>;
   UserInput: UserInput;
+  UserTransactionInput: UserTransactionInput;
   Wallet: ResolverTypeWrapper<Wallet>;
   WalletInput: WalletInput;
   WithdrawFundsInput: WithdrawFundsInput;
@@ -700,12 +732,14 @@ export type ResolversParentTypes = {
   Share: Share;
   ShareInput: ShareInput;
   Transaction: Transaction;
+  TransactionInput: TransactionInput;
   TransferFundsInput: TransferFundsInput;
   TransferFundsResponse: TransferFundsResponse;
   UpdateUserInput: UpdateUserInput;
   Upload: Scalars["Upload"]["output"];
   User: User;
   UserInput: UserInput;
+  UserTransactionInput: UserTransactionInput;
   Wallet: Wallet;
   WalletInput: WalletInput;
   WithdrawFundsInput: WithdrawFundsInput;
@@ -981,6 +1015,12 @@ export type MutationResolvers<
     ContextType,
     RequireFields<MutationCreateShareArgs, "share">
   >;
+  createTransaction?: Resolver<
+    Maybe<ResolversTypes["Transaction"]>,
+    ParentType,
+    ContextType,
+    RequireFields<MutationCreateTransactionArgs, "transaction">
+  >;
   createUser?: Resolver<
     Maybe<ResolversTypes["CreateUserResponse"]>,
     ParentType,
@@ -1170,6 +1210,11 @@ export type QueryResolvers<
     ContextType,
     RequireFields<QueryGetSharesArgs, "id">
   >;
+  getTransactions?: Resolver<
+    Maybe<Array<Maybe<ResolversTypes["Transaction"]>>>,
+    ParentType,
+    ContextType
+  >;
   getUser?: Resolver<
     Maybe<ResolversTypes["User"]>,
     ParentType,
@@ -1211,6 +1256,12 @@ export type QueryResolvers<
     ParentType,
     ContextType,
     RequireFields<QueryGetUserSharesArgs, "id">
+  >;
+  getUserTransactions?: Resolver<
+    Maybe<Array<Maybe<ResolversTypes["Transaction"]>>>,
+    ParentType,
+    ContextType,
+    Partial<QueryGetUserTransactionsArgs>
   >;
   getUserWithName?: Resolver<
     Maybe<ResolversTypes["getUserWithNameResponse"]>,
@@ -1269,6 +1320,7 @@ export type TransactionResolvers<
     ParentType,
     ContextType
   >;
+  type?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   updatedAt?: Resolver<
     Maybe<ResolversTypes["String"]>,
     ParentType,
@@ -1298,6 +1350,11 @@ export type UserResolvers<
 > = {
   address?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   bio?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
+  coverImage?: Resolver<
+    Maybe<ResolversTypes["String"]>,
+    ParentType,
+    ContextType
+  >;
   createdAt?: Resolver<Maybe<ResolversTypes["Date"]>, ParentType, ContextType>;
   email?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   firstName?: Resolver<
