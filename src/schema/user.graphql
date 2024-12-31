@@ -4,6 +4,7 @@ type Query {
   getUserFollowing(id: ID!): [User]
   getUserFollowers(id: ID!): [User]
   getUserWithName(username: String!): getUserWithNameResponse
+  getUserById(id: ID!): User
 }
 
 type getUserWithNameResponse {
@@ -39,6 +40,7 @@ input UserInput {
   email: String
   phone: String
   profileImage: Upload
+  coverImage: Upload
   address: String
   bio: String
 }
@@ -53,6 +55,7 @@ type User {
   email: String
   phone: String
   profileImage: String
+  coverImage: String
   address: String
   isVerified: Boolean
   bio: String
@@ -70,6 +73,7 @@ input UpdateUserInput {
   email: String
   phone: String
   profileImage: Upload
+  coverImage: Upload
   address: String
   bio: String
 }
