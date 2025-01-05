@@ -13,6 +13,7 @@ import { MutationResolvers, QueryResolvers } from "../types/types.generated";
 export const contractAddress = "0xA9832676f2cbDA4884EC6fD7aedD410172BD42D5";
 import cron from "node-cron";
 import { checkTransactionStatus } from "../utils/checkTransaction.utils";
+import { startTransactionMonitoring } from "../services/transactionMonitor.service";
 
 export const walletQueries: QueryResolvers<IContext> = {
   getWallet: async (parent, __, { user, error }) => {
@@ -88,30 +89,29 @@ export const walletQueries: QueryResolvers<IContext> = {
 export const walletMutations: MutationResolvers = {
   transferFunds: async (parent, { transferFunds }, { error, user }) => {
     if (error) throw error;
-    console.log("user at top", user);
-    const { amount, username } = transferFunds;
-    console.log("amount", amount);
-    console.log("username", username);
 
     try {
-      // Fetch the sender's wallet details
-      const currUserWallet = await WalletModel.findOne({ userId: user.id });
-      console.log("currUserWallet", currUserWallet);
+      const { amount, username } = transferFunds;
 
-      // Fetch the recipient's details using username
-      const getUserWithName = await UserModel.findOne({
-        username: username,
-      });
-      console.log("getUserWithName", getUserWithName);
+      // Get wallets
+      const [currUserWallet, recipient] = await Promise.all([
+        WalletModel.findOne({ userId: user.id }),
+        UserModel.findOne({ username }),
+      ]);
 
-      // Fetch the recipient's wallet
+      if (!currUserWallet || !recipient) {
+        throw new Error("Wallet or recipient not found");
+      }
+
       const recipientWallet = await WalletModel.findOne({
-        userId: getUserWithName._id,
+        userId: recipient._id,
       });
-      console.log("recipientWallet", recipientWallet);
 
-      console.log("recipientWallet.address", recipientWallet.address);
+      if (!recipientWallet) {
+        throw new Error("Recipient wallet not found");
+      }
 
+      // Initiate transfer
       const txPromise = transfer(
         contractAddress,
         amount,
@@ -119,50 +119,43 @@ export const walletMutations: MutationResolvers = {
         recipientWallet.address
       );
 
-      const response = {
-        message:
-          "Funds transfer initiated. You will be notified when the transaction status changes.",
-      };
-
-      // transaction for sender
       txPromise
         .then(async (tx) => {
-          const transaction = new TransactionModel({
-            senderWalletId: currUserWallet._id,
-            receiverWalletId: recipientWallet._id,
-            contractId: currUserWallet._id,
-            transactionHash: tx.hash,
-            amount: amount,
-            status: "pending",
-            type: "send",
-          });
+          // Create transactions
+          const [senderTx, receiverTx] = await Promise.all([
+            TransactionModel.create({
+              senderWalletId: currUserWallet._id,
+              receiverWalletId: recipientWallet._id,
+              contractId: currUserWallet._id,
+              transactionHash: tx.hash,
+              amount,
+              status: "pending",
+              type: "send", // Sender transaction
+            }),
+            TransactionModel.create({
+              senderWalletId: currUserWallet._id,
+              receiverWalletId: recipientWallet._id,
+              contractId: currUserWallet._id,
+              transactionHash: tx.hash,
+              amount,
+              status: "pending",
+              type: "receive", // Receiver transaction
+            }),
+          ]);
 
-          // transaction for recipient
-          const transaction2 = new TransactionModel({
-            senderWalletId: currUserWallet._id,
-            receiverWalletId: recipientWallet._id,
-            contractId: currUserWallet._id,
-            transactionHash: tx.hash,
-            amount: amount,
-            status: "pending",
-            type: "receive",
-          });
-
-          await transaction.save();
-          await transaction2.save();
-
-          startTransactionCronJob(tx.hash, transaction._id);
-          startTransactionCronJob(tx.hash, transaction2._id);
-
-          console.log(
-            "Transaction initiated on blockchain, monitoring started..."
-          );
+          // Start monitoring only once for the transaction
+          startTransactionMonitoring(tx.hash, senderTx._id.toString());
+          startTransactionMonitoring(tx.hash, receiverTx._id.toString());
         })
         .catch((error) => {
           console.error("Error initiating blockchain transaction:", error);
+          throw new Error("Failed to initiate transfer");
         });
 
-      return response;
+      return {
+        message:
+          "Funds transfer initiated. You will be notified when the transaction completes.",
+      };
     } catch (error) {
       console.error("Error in transferFunds:", error);
       throw new Error("Error transferring funds");
@@ -254,6 +247,29 @@ const updateTransactionStatus = async (
   transactionId: string,
   status: string
 ) => {
-  await TransactionModel.findByIdAndUpdate(transactionId, { status: status });
-  console.log(`Transaction ${transactionId} status updated to ${status}`);
+  const transaction = await TransactionModel.findByIdAndUpdate(
+    transactionId,
+    { status: status },
+    { new: true }
+  ).populate("senderWalletId receiverWalletId");
+
+  const senderWallet = await WalletModel.findById(transaction?.senderWalletId);
+  const receiverWallet = await WalletModel.findById(
+    transaction?.receiverWalletId
+  );
+
+  if (transaction && senderWallet) {
+    // Emit to sender
+    if (senderWallet.userId) {
+      startTransactionMonitoring(transactionId, senderWallet.userId.toString());
+    }
+
+    // Emit to receiver
+    if (receiverWallet && receiverWallet.userId) {
+      startTransactionMonitoring(
+        transactionId,
+        receiverWallet.userId.toString()
+      );
+    }
+  }
 };
