@@ -96,6 +96,50 @@ export const userQueries: QueryResolvers<IContext> = {
       message: "User found successfully",
     };
   },
+  getTopUsers: async (parent, { limit = 5 }, { error }) => {
+    if (error) throw error;
+
+    try {
+      // Find users and sort by number of followers in descending order
+      const users = await UserModel.aggregate([
+        {
+          $addFields: {
+            followersCount: { $size: { $ifNull: ["$followers", []] } },
+          },
+        },
+        {
+          $sort: { followersCount: -1 },
+        },
+        {
+          $limit: limit,
+        },
+        {
+          $project: {
+            _id: 1,
+            id: "$_id",
+            firstName: 1,
+            lastName: 1,
+            username: 1,
+            email: 1,
+            profileImage: 1,
+            bio: 1,
+            followers: 1,
+            following: 1,
+            isVerified: 1,
+            createdAt: 1,
+            updatedAt: 1,
+          },
+        },
+      ]);
+
+      console.log("users here", users);
+
+      return users;
+    } catch (error) {
+      console.error("Error fetching top users:", error);
+      throw new GraphQLError("Failed to fetch top users");
+    }
+  },
 };
 
 export const userMutations: MutationResolvers = {
