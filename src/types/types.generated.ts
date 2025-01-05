@@ -330,8 +330,10 @@ export type Query = {
   getFollowingPosts?: Maybe<Array<Maybe<Post>>>;
   getPost?: Maybe<Post>;
   getShares?: Maybe<Array<Maybe<Share>>>;
+  getTopUsers?: Maybe<Array<Maybe<User>>>;
   getTransactions?: Maybe<Array<Maybe<Transaction>>>;
   getUser?: Maybe<User>;
+  getUserById?: Maybe<User>;
   getUserComments?: Maybe<Array<Maybe<Comment>>>;
   getUserCommunities?: Maybe<Array<Maybe<Community>>>;
   getUserFollowers?: Maybe<Array<Maybe<User>>>;
@@ -369,7 +371,15 @@ export type QueryGetSharesArgs = {
   id: Scalars["ID"]["input"];
 };
 
+export type QueryGetTopUsersArgs = {
+  limit?: InputMaybe<Scalars["Int"]["input"]>;
+};
+
 export type QueryGetUserArgs = {
+  id: Scalars["ID"]["input"];
+};
+
+export type QueryGetUserByIdArgs = {
   id: Scalars["ID"]["input"];
 };
 
@@ -1210,6 +1220,12 @@ export type QueryResolvers<
     ContextType,
     RequireFields<QueryGetSharesArgs, "id">
   >;
+  getTopUsers?: Resolver<
+    Maybe<Array<Maybe<ResolversTypes["User"]>>>,
+    ParentType,
+    ContextType,
+    Partial<QueryGetTopUsersArgs>
+  >;
   getTransactions?: Resolver<
     Maybe<Array<Maybe<ResolversTypes["Transaction"]>>>,
     ParentType,
@@ -1220,6 +1236,12 @@ export type QueryResolvers<
     ParentType,
     ContextType,
     RequireFields<QueryGetUserArgs, "id">
+  >;
+  getUserById?: Resolver<
+    Maybe<ResolversTypes["User"]>,
+    ParentType,
+    ContextType,
+    RequireFields<QueryGetUserByIdArgs, "id">
   >;
   getUserComments?: Resolver<
     Maybe<Array<Maybe<ResolversTypes["Comment"]>>>,
