@@ -15,8 +15,9 @@ export const transactionQueries: QueryResolvers<IContext> = {
 
     const userWallet = await WalletModel.findOne({ userId: user.id });
     if (!userWallet) throw new Error("Wallet not found");
+    console.log("userWallet", userWallet);
 
-    // Query transactions involving the user's wallet, grouped by transactionHash and prioritizing "send"
+    // Query transactions involving the user's wallet
     const transactions = await TransactionModel.aggregate([
       {
         $match: {
@@ -29,26 +30,32 @@ export const transactionQueries: QueryResolvers<IContext> = {
       {
         $addFields: {
           priority: {
-            $cond: { if: { $eq: ["$type", "send"] }, then: 1, else: 0 },
+            $cond: {
+              if: { $eq: ["$receiverWalletId", userWallet._id] },
+              then: 1, // Higher priority for receiving transactions
+              else: 0, // Lower priority for sending transactions
+            },
           },
         },
       },
       {
         $sort: {
-          priority: -1, // Prioritize "send" type
-          createdAt: -1, // Ensure the latest transaction is picked in case of duplicates
+          priority: -1, // Prioritize receiving transactions for receiver
+          createdAt: -1, // Order by the most recent transaction within priority
         },
       },
       {
         $group: {
           _id: "$transactionHash", // Group by transaction hash
-          transaction: { $first: "$$ROOT" }, // Pick the first document in each group (after sorting)
+          transaction: { $first: "$$ROOT" }, // Pick the first document in each group
         },
       },
       {
         $replaceRoot: { newRoot: "$transaction" }, // Flatten the grouped result
       },
     ]);
+
+    console.log("transactions", transactions);
 
     return transactions as any;
   },
