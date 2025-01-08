@@ -7,6 +7,7 @@ type Transaction {
   receiverWalletId: ID
   contractId: ID
   transactionHash: String
+  ownerId: String
   type: String
   createdAt: String
   updatedAt: String
@@ -34,4 +35,5 @@ input TransactionInput {
   receiverWalletId: ID
   contractId: ID
   transactionHash: String
+  ownerId: String
 }
