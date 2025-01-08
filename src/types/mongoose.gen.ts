@@ -675,6 +675,7 @@ export type ShareDocument = mongoose.Document<
 export type Transaction = {
   senderWalletId: Wallet["_id"] | Wallet;
   receiverWalletId?: Wallet["_id"] | Wallet;
+  ownerId: User["_id"] | User;
   contractId: Contract["_id"] | Contract;
   transactionHash: string;
   amount: string;
@@ -765,6 +766,7 @@ export type TransactionDocument = mongoose.Document<
   TransactionMethods & {
     senderWalletId: WalletDocument["_id"] | WalletDocument;
     receiverWalletId?: WalletDocument["_id"] | WalletDocument;
+    ownerId: UserDocument["_id"] | UserDocument;
     contractId: ContractDocument["_id"] | ContractDocument;
     transactionHash: string;
     amount: string;

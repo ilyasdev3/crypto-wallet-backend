@@ -436,6 +436,7 @@ export type Transaction = {
   contractId?: Maybe<Scalars["ID"]["output"]>;
   createdAt?: Maybe<Scalars["String"]["output"]>;
   id?: Maybe<Scalars["ID"]["output"]>;
+  ownerId?: Maybe<Scalars["String"]["output"]>;
   receiverWalletId?: Maybe<Scalars["ID"]["output"]>;
   senderWalletId?: Maybe<Scalars["ID"]["output"]>;
   status?: Maybe<Scalars["String"]["output"]>;
@@ -448,6 +449,7 @@ export type TransactionInput = {
   address?: InputMaybe<Scalars["String"]["input"]>;
   amount?: InputMaybe<Scalars["Int"]["input"]>;
   contractId?: InputMaybe<Scalars["ID"]["input"]>;
+  ownerId?: InputMaybe<Scalars["String"]["input"]>;
   receiverWalletId?: InputMaybe<Scalars["ID"]["input"]>;
   senderWalletId?: InputMaybe<Scalars["ID"]["input"]>;
   status?: InputMaybe<Scalars["String"]["input"]>;
@@ -1326,6 +1328,7 @@ export type TransactionResolvers<
     ContextType
   >;
   id?: Resolver<Maybe<ResolversTypes["ID"]>, ParentType, ContextType>;
+  ownerId?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   receiverWalletId?: Resolver<
     Maybe<ResolversTypes["ID"]>,
     ParentType,
