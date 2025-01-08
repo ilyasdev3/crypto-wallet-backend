@@ -16,13 +16,42 @@ const transactionSchema: TransactionSchema = new Schema({
     ref: "Wallet",
     required: false,
   },
-  contractId: { type: Schema.Types.ObjectId, ref: "Contract", required: true },
-  transactionHash: { type: String, required: true },
-  amount: { type: String, required: true },
-  status: { type: String, required: true, default: "pending" },
-  type: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
+  ownerId: {
+    // Add owner field to track who owns this transaction record
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  contractId: {
+    type: Schema.Types.ObjectId,
+    ref: "Contract",
+    required: true,
+  },
+  transactionHash: {
+    type: String,
+    required: true,
+  },
+  amount: {
+    type: String,
+    required: true,
+  },
+  status: {
+    type: String,
+    required: true,
+    default: "pending",
+  },
+  type: {
+    type: String,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 const TransactionModel = model<TransactionDocument, TransactionModel>(
