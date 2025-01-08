@@ -87,6 +87,83 @@ export const walletQueries: QueryResolvers<IContext> = {
 };
 
 export const walletMutations: MutationResolvers = {
+  // transferFunds: async (parent, { transferFunds }, { error, user }) => {
+  //   if (error) throw error;
+
+  //   try {
+  //     const { amount, username } = transferFunds;
+
+  //     // Get wallets
+  //     const [currUserWallet, recipient] = await Promise.all([
+  //       WalletModel.findOne({ userId: user.id }),
+  //       UserModel.findOne({ username }),
+  //     ]);
+
+  //     if (!currUserWallet || !recipient) {
+  //       throw new Error("Wallet or recipient not found");
+  //     }
+
+  //     const recipientWallet = await WalletModel.findOne({
+  //       userId: recipient._id,
+  //     });
+
+  //     if (!recipientWallet) {
+  //       throw new Error("Recipient wallet not found");
+  //     }
+
+  //     // Initiate transfer
+  //     const txPromise = transfer(
+  //       contractAddress,
+  //       amount,
+  //       currUserWallet.privateKey,
+  //       recipientWallet.address
+  //     );
+
+  //     txPromise
+  //       .then(async (tx) => {
+  //         // Create transactions with owner IDs
+  //         const [senderTx, receiverTx] = await Promise.all([
+  //           TransactionModel.create({
+  //             senderWalletId: currUserWallet._id,
+  //             receiverWalletId: recipientWallet._id,
+  //             ownerId: user.id, // Current user owns the send transaction
+  //             contractId: currUserWallet._id,
+  //             transactionHash: tx.hash,
+  //             amount,
+  //             status: "pending",
+  //             type: "send",
+  //           }),
+  //           TransactionModel.create({
+  //             senderWalletId: currUserWallet._id,
+  //             receiverWalletId: recipientWallet._id,
+  //             ownerId: recipient._id, // Recipient owns the receive transaction
+  //             contractId: currUserWallet._id,
+  //             transactionHash: tx.hash,
+  //             amount,
+  //             status: "pending",
+  //             type: "receive",
+  //           }),
+  //         ]);
+
+  //         // Start monitoring
+  //         startTransactionMonitoring(tx.hash, senderTx._id.toString());
+  //         startTransactionMonitoring(tx.hash, receiverTx._id.toString());
+  //       })
+  //       .catch((error) => {
+  //         console.error("Error initiating blockchain transaction:", error);
+  //         throw new Error("Failed to initiate transfer");
+  //       });
+
+  //     return {
+  //       message:
+  //         "Funds transfer initiated. You will be notified when the transaction completes.",
+  //     };
+  //   } catch (error) {
+  //     console.error("Error in transferFunds:", error);
+  //     throw new Error("Error transferring funds");
+  //   }
+  // },
+
   transferFunds: async (parent, { transferFunds }, { error, user }) => {
     if (error) throw error;
 
@@ -112,46 +189,44 @@ export const walletMutations: MutationResolvers = {
       }
 
       // Initiate transfer
-      const txPromise = transfer(
+      const tx = await transfer(
         contractAddress,
         amount,
         currUserWallet.privateKey,
         recipientWallet.address
       );
 
-      txPromise
-        .then(async (tx) => {
-          // Create transactions
-          const [senderTx, receiverTx] = await Promise.all([
-            TransactionModel.create({
-              senderWalletId: currUserWallet._id,
-              receiverWalletId: recipientWallet._id,
-              contractId: currUserWallet._id,
-              transactionHash: tx.hash,
-              amount,
-              status: "pending",
-              type: "send", // Sender transaction
-            }),
-            TransactionModel.create({
-              senderWalletId: currUserWallet._id,
-              receiverWalletId: recipientWallet._id,
-              contractId: currUserWallet._id,
-              transactionHash: tx.hash,
-              amount,
-              status: "pending",
-              type: "receive", // Receiver transaction
-            }),
-          ]);
+      // Create transactions
+      const [senderTx, receiverTx] = await Promise.all([
+        TransactionModel.create({
+          senderWalletId: currUserWallet._id,
+          receiverWalletId: recipientWallet._id,
+          ownerId: user.id,
+          contractId: currUserWallet._id,
+          transactionHash: tx.hash,
+          amount,
+          status: "pending",
+          type: "send",
+          createdAt: new Date(),
+        }),
+        TransactionModel.create({
+          senderWalletId: currUserWallet._id,
+          receiverWalletId: recipientWallet._id,
+          ownerId: recipient._id,
+          contractId: currUserWallet._id,
+          transactionHash: tx.hash,
+          amount,
+          status: "pending",
+          type: "receive",
+          createdAt: new Date(),
+        }),
+      ]);
 
-          // Start monitoring only once for the transaction
-          startTransactionMonitoring(tx.hash, senderTx._id.toString());
-          startTransactionMonitoring(tx.hash, receiverTx._id.toString());
-        })
-        .catch((error) => {
-          console.error("Error initiating blockchain transaction:", error);
-          throw new Error("Failed to initiate transfer");
-        });
+      // Start monitoring
+      await startTransactionMonitoring(tx.hash, senderTx._id.toString());
+      await startTransactionMonitoring(tx.hash, receiverTx._id.toString());
 
+      // Return response
       return {
         message:
           "Funds transfer initiated. You will be notified when the transaction completes.",
@@ -161,15 +236,16 @@ export const walletMutations: MutationResolvers = {
       throw new Error("Error transferring funds");
     }
   },
+
   withdrawFunds: async (parent, { withdrawFunds }, { error, user }) => {
     if (error) throw error;
-    console.log("user at top", user);
     const { amount, address } = withdrawFunds;
-    console.log("amount", amount);
-    console.log("address", address);
+
     try {
       const currUserWallet = await WalletModel.findOne({ userId: user.id });
-      console.log("currUserWallet", currUserWallet);
+      if (!currUserWallet) {
+        throw new Error("Wallet not found");
+      }
 
       const txPromise = transfer(
         contractAddress,
@@ -185,9 +261,11 @@ export const walletMutations: MutationResolvers = {
 
       txPromise
         .then(async (tx) => {
-          const transaction = new TransactionModel({
+          // Create withdrawal transaction with owner ID
+          const transaction = await TransactionModel.create({
             senderWalletId: currUserWallet._id,
-            // receiverWalletId: currUserWallet._id,
+            receiverWalletId: null, // External address
+            ownerId: user.id, // Current user owns the withdrawal
             contractId: currUserWallet._id,
             transactionHash: tx.hash,
             amount: amount,
@@ -195,10 +273,7 @@ export const walletMutations: MutationResolvers = {
             type: "withdraw",
           });
 
-          await transaction.save();
-
           startTransactionCronJob(tx.hash, transaction._id);
-
           console.log(
             "Transaction initiated on blockchain, monitoring started..."
           );
