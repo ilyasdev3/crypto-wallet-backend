@@ -164,57 +164,128 @@ export const walletMutations: MutationResolvers = {
   //   }
   // },
 
+  // transferFunds: async (parent, { transferFunds }, { error, user }) => {
+  //   if (error) throw error;
+
+  //   try {
+  //     const { amount, username } = transferFunds;
+
+  //     // Get wallets
+  //     const [currUserWallet, recipient] = await Promise.all([
+  //       WalletModel.findOne({ userId: user.id }),
+  //       UserModel.findOne({ username }),
+  //     ]);
+
+  //     if (!currUserWallet || !recipient) {
+  //       throw new Error("Wallet or recipient not found");
+  //     }
+
+  //     const recipientWallet = await WalletModel.findOne({
+  //       userId: recipient._id,
+  //     });
+
+  //     if (!recipientWallet) {
+  //       throw new Error("Recipient wallet not found");
+  //     }
+
+  //     // Initiate transfer
+  //     const tx = await transfer(
+  //       contractAddress,
+  //       amount,
+  //       currUserWallet.privateKey,
+  //       recipientWallet.address
+  //     );
+
+  //     // Create transactions
+  //     const [senderTx, receiverTx] = await Promise.all([
+  //       TransactionModel.create({
+  //         senderWalletId: currUserWallet._id,
+  //         receiverWalletId: recipientWallet._id,
+  //         ownerId: user.id,
+  //         contractId: currUserWallet._id,
+  //         transactionHash: tx.hash,
+  //         amount,
+  //         status: "pending",
+  //         type: "send",
+  //         createdAt: new Date(),
+  //       }),
+  //       TransactionModel.create({
+  //         senderWalletId: currUserWallet._id,
+  //         receiverWalletId: recipientWallet._id,
+  //         ownerId: recipient._id,
+  //         contractId: currUserWallet._id,
+  //         transactionHash: tx.hash,
+  //         amount,
+  //         status: "pending",
+  //         type: "receive",
+  //         createdAt: new Date(),
+  //       }),
+  //     ]);
+
+  //     if (!senderTx || !receiverTx) {
+  //       await TransactionModel.deleteMany({ transactionHash: tx.hash });
+
+  //       throw new Error("Transaction not found");
+  //     }
+
+  //     // Start monitoring
+  //     await Promise.all([
+  //       startTransactionMonitoring(tx.hash, senderTx._id.toString()),
+  //       startTransactionMonitoring(tx.hash, receiverTx._id.toString()),
+  //     ]);
+
+  //     // Return response
+  //     return {
+  //       message:
+  //         "Funds transfer initiated. You will be notified when the transaction completes.",
+  //     };
+  //   } catch (error) {
+  //     console.error("Error in transferFunds:", error);
+  //     throw new Error("Error transferring funds");
+  //   }
+  // },
+
   transferFunds: async (parent, { transferFunds }, { error, user }) => {
     if (error) throw error;
 
     try {
       const { amount, username } = transferFunds;
 
-      // Get wallets
-      const [currUserWallet, recipient] = await Promise.all([
+      // 1. Get required data
+      const [senderWallet, recipient, contract] = await Promise.all([
         WalletModel.findOne({ userId: user.id }),
         UserModel.findOne({ username }),
+        ContractModel.findOne({ name: "Bitcoin" }),
       ]);
 
-      if (!currUserWallet || !recipient) {
-        throw new Error("Wallet or recipient not found");
+      if (!senderWallet || !recipient || !contract) {
+        throw new Error("Wallet, recipient, or contract not found");
       }
 
       const recipientWallet = await WalletModel.findOne({
         userId: recipient._id,
       });
-
       if (!recipientWallet) {
         throw new Error("Recipient wallet not found");
       }
 
-      // Initiate transfer
-      const tx = await transfer(
-        contractAddress,
-        amount,
-        currUserWallet.privateKey,
-        recipientWallet.address
-      );
-
-      // Create transactions
+      // 2. Create pending transactions in DB
       const [senderTx, receiverTx] = await Promise.all([
         TransactionModel.create({
-          senderWalletId: currUserWallet._id,
+          senderWalletId: senderWallet._id,
           receiverWalletId: recipientWallet._id,
           ownerId: user.id,
-          contractId: currUserWallet._id,
-          transactionHash: tx.hash,
+          contractId: contract._id,
           amount,
           status: "pending",
           type: "send",
           createdAt: new Date(),
         }),
         TransactionModel.create({
-          senderWalletId: currUserWallet._id,
+          senderWalletId: senderWallet._id,
           receiverWalletId: recipientWallet._id,
           ownerId: recipient._id,
-          contractId: currUserWallet._id,
-          transactionHash: tx.hash,
+          contractId: contract._id,
           amount,
           status: "pending",
           type: "receive",
@@ -222,18 +293,35 @@ export const walletMutations: MutationResolvers = {
         }),
       ]);
 
-      // Start monitoring
-      await startTransactionMonitoring(tx.hash, senderTx._id.toString());
-      await startTransactionMonitoring(tx.hash, receiverTx._id.toString());
+      // 3. Initiate blockchain transfer
+      const tx = await transfer(
+        contractAddress,
+        amount,
+        senderWallet.privateKey,
+        recipientWallet.address
+      );
 
-      // Return response
+      // 4. Update transactions with hash
+      await Promise.all([
+        TransactionModel.findByIdAndUpdate(senderTx._id, {
+          transactionHash: tx.hash,
+        }),
+        TransactionModel.findByIdAndUpdate(receiverTx._id, {
+          transactionHash: tx.hash,
+        }),
+      ]);
+
+      // 5. Start monitoring
+      startTransactionMonitoring(tx.hash, senderTx._id.toString());
+      startTransactionMonitoring(tx.hash, receiverTx._id.toString());
+
       return {
         message:
-          "Funds transfer initiated. You will be notified when the transaction completes.",
+          "Transfer initiated. You'll be notified when the transaction completes.",
       };
     } catch (error) {
       console.error("Error in transferFunds:", error);
-      throw new Error("Error transferring funds");
+      throw error;
     }
   },
 
