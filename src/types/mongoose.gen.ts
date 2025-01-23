@@ -677,7 +677,7 @@ export type Transaction = {
   receiverWalletId?: Wallet["_id"] | Wallet;
   ownerId: User["_id"] | User;
   contractId: Contract["_id"] | Contract;
-  transactionHash: string;
+  transactionHash?: string;
   amount: string;
   status: string;
   type: string;
@@ -768,7 +768,7 @@ export type TransactionDocument = mongoose.Document<
     receiverWalletId?: WalletDocument["_id"] | WalletDocument;
     ownerId: UserDocument["_id"] | UserDocument;
     contractId: ContractDocument["_id"] | ContractDocument;
-    transactionHash: string;
+    transactionHash?: string;
     amount: string;
     status: string;
     type: string;
