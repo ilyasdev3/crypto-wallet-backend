@@ -24,9 +24,8 @@ export const transactionQueries: QueryResolvers<IContext> = {
         ownerId: user.id,
         status: input.type,
       };
-
       const [totalItems, transactions] = await Promise.all([
-        TransactionModel.countDocuments(query),
+        TransactionModel.countDocuments({ ownerId: user.id }),
         TransactionModel.find(query).skip(skip).limit(limit),
       ]);
 
