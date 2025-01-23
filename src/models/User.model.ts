@@ -19,6 +19,27 @@ const userSchema: UserSchema = new Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
+userSchema.index({ username: 1 }, { unique: true });
+userSchema.index({ email: 1 }, { unique: true });
+
+//  enterpriseSchema.index({ email: 1 }, { unique: true })
+
+// enterpriseSchema.index({ isActive: 1, 'location.country': 1 })
+
+//  employeeSchema.index({ enterprise: 1 })
+
+// employeeSchema.index({ enterprise: 1, employeId: 1 }, { unique: true })
+
+// employeeSchema.index({ enterprise: 1, email: 1 }, { unique: true })
+
+//  documentCommentSchema.index({ document: 1, createdAt: -1 })
+
+//  projectContractorSchema.index({ enterprise: 1, email: 1 }, { unique: true })
+
+// projectContractorSchema.index({ status: 1 })
+
+// dmsUserSchema.index({ enterprise: 1, userName: 1 }, { unique: true })
+
 const UserModel: UserModel = model<UserDocument, UserModel>("User", userSchema);
 
 export { UserModel };
