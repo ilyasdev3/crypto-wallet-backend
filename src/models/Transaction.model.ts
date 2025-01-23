@@ -29,7 +29,7 @@ const transactionSchema: TransactionSchema = new Schema({
   },
   transactionHash: {
     type: String,
-    required: true,
+    required: false,
   },
   amount: {
     type: String,
