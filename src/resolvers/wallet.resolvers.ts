@@ -5,6 +5,7 @@ import { UserModel } from "../models/User.model";
 import { TransactionModel } from "../models/Transaction.model";
 import { ContractModel } from "../models/Contract.model";
 import { IContext } from "../types/context.types";
+import { isValidAddress } from "../utils/isValidAddress";
 
 import axios from "axios";
 import { getWalletBalance, transfer } from "../contract/contractMethods";
@@ -251,6 +252,10 @@ export const walletMutations: MutationResolvers = {
     try {
       const { amount, username } = transferFunds;
 
+      if (!amount || Number(amount) <= 0) throw new Error("Invalid amount");
+      if (!username || !isValidAddress(username))
+        throw new Error("Invalid username");
+
       // 1. Get required data
       const [senderWallet, recipient, contract] = await Promise.all([
         WalletModel.findOne({ userId: user.id }),
@@ -330,50 +335,61 @@ export const walletMutations: MutationResolvers = {
     const { amount, address } = withdrawFunds;
 
     try {
+      // 1. Validate the user's wallet
       const currUserWallet = await WalletModel.findOne({ userId: user.id });
       if (!currUserWallet) {
         throw new Error("Wallet not found");
       }
 
-      const txPromise = transfer(
+      // 2. Validate the withdrawal address
+      if (!address || !isValidAddress(address.toLowerCase())) {
+        throw new Error("Invalid withdrawal address");
+      }
+
+      // 3. Validate the amount
+      const walletBalance = await getWalletBalance(
+        contractAddress,
+        currUserWallet.privateKey
+      );
+      if (Number(amount) <= 0 || Number(amount) > Number(walletBalance)) {
+        throw new Error("Invalid amount or insufficient balance");
+      }
+
+      // 4. Create a pending withdrawal transaction in the database
+      const transaction = await TransactionModel.create({
+        senderWalletId: currUserWallet._id,
+        receiverWalletId: null, // External address
+        ownerId: user.id, // Current user owns the withdrawal
+        contractId: currUserWallet._id,
+        amount: amount,
+        status: "pending",
+        type: "withdraw",
+        createdAt: new Date(),
+      });
+
+      // 5. Initiate the blockchain transfer
+      const tx = await transfer(
         contractAddress,
         amount,
         currUserWallet.privateKey,
         address
       );
 
-      const response = {
+      // 6. Update the transaction with the hash
+      await TransactionModel.findByIdAndUpdate(transaction._id, {
+        transactionHash: tx.hash,
+      });
+
+      // 7. Start monitoring the transaction
+      startTransactionCronJob(tx.hash, transaction._id);
+
+      return {
         message:
           "Withdrawal initiated. You will be notified when the transaction status changes.",
       };
-
-      txPromise
-        .then(async (tx) => {
-          // Create withdrawal transaction with owner ID
-          const transaction = await TransactionModel.create({
-            senderWalletId: currUserWallet._id,
-            receiverWalletId: null, // External address
-            ownerId: user.id, // Current user owns the withdrawal
-            contractId: currUserWallet._id,
-            transactionHash: tx.hash,
-            amount: amount,
-            status: "pending",
-            type: "withdraw",
-          });
-
-          startTransactionCronJob(tx.hash, transaction._id);
-          console.log(
-            "Transaction initiated on blockchain, monitoring started..."
-          );
-        })
-        .catch((error) => {
-          console.error("Error initiating blockchain transaction:", error);
-        });
-
-      return response;
     } catch (error) {
       console.error("Error in withdrawFunds:", error);
-      throw new Error("Error withdrawing funds");
+      throw new Error(error.message);
     }
   },
 };
