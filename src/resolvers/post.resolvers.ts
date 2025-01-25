@@ -67,9 +67,9 @@ export const postQueries: QueryResolvers<IContext> = {
     const sort = "asc";
 
     // Apply title filter with regex
-    if (title) {
-      query.title = { $regex: title, $options: "i" }; // case-insensitive partial match
-    }
+    // if (title) {
+    //   query.title = { $regex: title, $options: "i" }; // case-insensitive partial match
+    // }
 
     // Apply content filter with regex
     if (content) {
