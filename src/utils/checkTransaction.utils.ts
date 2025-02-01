@@ -1,3 +1,4 @@
+// src/utils/checkTransaction.utils.ts
 import { ethers } from "ethers";
 
 const provider = new ethers.providers.JsonRpcProvider(
@@ -14,20 +15,40 @@ export const checkTransaction = async (transactionHash: string) => {
   }
 };
 
-export const checkTransactionStatus = async (txHash: string) => {
+export const checkTransactionStatus = async (
+  transactionHash: string
+): Promise<"pending" | "confirmed" | "failed" | null> => {
   try {
-    const receipt = await provider.waitForTransaction(txHash, 1);
-    if (receipt.status === 0) {
+    if (!transactionHash) {
+      console.error("No transaction hash provided");
+      return null;
+    }
+
+    // Get transaction
+    const tx = await provider.getTransaction(transactionHash);
+    if (!tx) {
+      console.error("Transaction not found");
+      return null;
+    }
+
+    // Get transaction receipt
+    const receipt = await provider.getTransactionReceipt(transactionHash);
+
+    if (!receipt) {
+      console.log("Transaction succeeded or pending");
+      return "pending";
+    }
+
+    // Check status - 1 is success, 0 is failure
+    if (receipt.status === 1) {
+      console.log(`Transaction ${transactionHash} confirmed`);
+      return "confirmed";
+    } else {
+      console.log(`Transaction ${transactionHash} failed`);
       return "failed";
     }
-    return "confirmed";
   } catch (error) {
     console.error("Error checking transaction status:", error);
-    return "error"; // Handle error scenarios
+    return null;
   }
 };
-
-// Example usage
-// const txHash = "0x1319e733268497f393a22b5e8c5249ae4943a5cd5e966fb57fa7f44f8c654ac9"; // Example tx hash
-// const status = await checkTransactionStatus(txHash);
-// console.log("Transaction status:", status);

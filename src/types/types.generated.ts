@@ -280,6 +280,18 @@ export type MutationWithdrawFundsArgs = {
   withdrawFunds: WithdrawFundsInput;
 };
 
+export type Pagination = {
+  __typename?: "Pagination";
+  currentPage?: Maybe<Scalars["Int"]["output"]>;
+  totalItems?: Maybe<Scalars["Int"]["output"]>;
+  totalPages?: Maybe<Scalars["Int"]["output"]>;
+};
+
+export type PaginationInput = {
+  limit?: InputMaybe<Scalars["Int"]["input"]>;
+  page?: InputMaybe<Scalars["Int"]["input"]>;
+};
+
 export type Post = {
   __typename?: "Post";
   community?: Maybe<Community>;
@@ -330,15 +342,17 @@ export type Query = {
   getFollowingPosts?: Maybe<Array<Maybe<Post>>>;
   getPost?: Maybe<Post>;
   getShares?: Maybe<Array<Maybe<Share>>>;
-  getTransactions?: Maybe<Array<Maybe<Transaction>>>;
+  getTopUsers?: Maybe<Array<Maybe<User>>>;
+  getTransactions?: Maybe<TransactionConnection>;
   getUser?: Maybe<User>;
+  getUserById?: Maybe<User>;
   getUserComments?: Maybe<Array<Maybe<Comment>>>;
   getUserCommunities?: Maybe<Array<Maybe<Community>>>;
   getUserFollowers?: Maybe<Array<Maybe<User>>>;
   getUserFollowing?: Maybe<Array<Maybe<User>>>;
   getUserPosts?: Maybe<Array<Maybe<Post>>>;
   getUserShares?: Maybe<Array<Maybe<Share>>>;
-  getUserTransactions?: Maybe<Array<Maybe<Transaction>>>;
+  getUserTransactions?: Maybe<TransactionConnection>;
   getUserWithName?: Maybe<GetUserWithNameResponse>;
   getWallet?: Maybe<Wallet>;
   me?: Maybe<User>;
@@ -369,7 +383,19 @@ export type QueryGetSharesArgs = {
   id: Scalars["ID"]["input"];
 };
 
+export type QueryGetTopUsersArgs = {
+  limit?: InputMaybe<Scalars["Int"]["input"]>;
+};
+
+export type QueryGetTransactionsArgs = {
+  input?: InputMaybe<PaginationInput>;
+};
+
 export type QueryGetUserArgs = {
+  id: Scalars["ID"]["input"];
+};
+
+export type QueryGetUserByIdArgs = {
   id: Scalars["ID"]["input"];
 };
 
@@ -399,6 +425,7 @@ export type QueryGetUserSharesArgs = {
 
 export type QueryGetUserTransactionsArgs = {
   input?: InputMaybe<UserTransactionInput>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 export type QueryGetUserWithNameArgs = {
@@ -426,6 +453,7 @@ export type Transaction = {
   contractId?: Maybe<Scalars["ID"]["output"]>;
   createdAt?: Maybe<Scalars["String"]["output"]>;
   id?: Maybe<Scalars["ID"]["output"]>;
+  ownerId?: Maybe<Scalars["String"]["output"]>;
   receiverWalletId?: Maybe<Scalars["ID"]["output"]>;
   senderWalletId?: Maybe<Scalars["ID"]["output"]>;
   status?: Maybe<Scalars["String"]["output"]>;
@@ -434,10 +462,17 @@ export type Transaction = {
   updatedAt?: Maybe<Scalars["String"]["output"]>;
 };
 
+export type TransactionConnection = {
+  __typename?: "TransactionConnection";
+  pageInfo?: Maybe<Pagination>;
+  transactions?: Maybe<Array<Maybe<Transaction>>>;
+};
+
 export type TransactionInput = {
   address?: InputMaybe<Scalars["String"]["input"]>;
   amount?: InputMaybe<Scalars["Int"]["input"]>;
   contractId?: InputMaybe<Scalars["ID"]["input"]>;
+  ownerId?: InputMaybe<Scalars["String"]["input"]>;
   receiverWalletId?: InputMaybe<Scalars["ID"]["input"]>;
   senderWalletId?: InputMaybe<Scalars["ID"]["input"]>;
   status?: InputMaybe<Scalars["String"]["input"]>;
@@ -672,15 +707,18 @@ export type ResolversTypes = {
   LoginResponse: ResolverTypeWrapper<LoginResponse>;
   Mutation: ResolverTypeWrapper<{}>;
   ObjectId: ResolverTypeWrapper<Scalars["ObjectId"]["output"]>;
+  Pagination: ResolverTypeWrapper<Pagination>;
+  Int: ResolverTypeWrapper<Scalars["Int"]["output"]>;
+  PaginationInput: PaginationInput;
   Post: ResolverTypeWrapper<Post>;
   PostFilter: PostFilter;
-  Int: ResolverTypeWrapper<Scalars["Int"]["output"]>;
   PostInput: PostInput;
   PostStats: ResolverTypeWrapper<PostStats>;
   Query: ResolverTypeWrapper<{}>;
   Share: ResolverTypeWrapper<Share>;
   ShareInput: ShareInput;
   Transaction: ResolverTypeWrapper<Transaction>;
+  TransactionConnection: ResolverTypeWrapper<TransactionConnection>;
   TransactionInput: TransactionInput;
   TransferFundsInput: TransferFundsInput;
   TransferFundsResponse: ResolverTypeWrapper<TransferFundsResponse>;
@@ -723,15 +761,18 @@ export type ResolversParentTypes = {
   LoginResponse: LoginResponse;
   Mutation: {};
   ObjectId: Scalars["ObjectId"]["output"];
+  Pagination: Pagination;
+  Int: Scalars["Int"]["output"];
+  PaginationInput: PaginationInput;
   Post: Post;
   PostFilter: PostFilter;
-  Int: Scalars["Int"]["output"];
   PostInput: PostInput;
   PostStats: PostStats;
   Query: {};
   Share: Share;
   ShareInput: ShareInput;
   Transaction: Transaction;
+  TransactionConnection: TransactionConnection;
   TransactionInput: TransactionInput;
   TransferFundsInput: TransferFundsInput;
   TransferFundsResponse: TransferFundsResponse;
@@ -1112,6 +1153,17 @@ export interface ObjectIdScalarConfig
   name: "ObjectId";
 }
 
+export type PaginationResolvers<
+  ContextType = any,
+  ParentType extends
+    ResolversParentTypes["Pagination"] = ResolversParentTypes["Pagination"],
+> = {
+  currentPage?: Resolver<Maybe<ResolversTypes["Int"]>, ParentType, ContextType>;
+  totalItems?: Resolver<Maybe<ResolversTypes["Int"]>, ParentType, ContextType>;
+  totalPages?: Resolver<Maybe<ResolversTypes["Int"]>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type PostResolvers<
   ContextType = any,
   ParentType extends
@@ -1210,16 +1262,29 @@ export type QueryResolvers<
     ContextType,
     RequireFields<QueryGetSharesArgs, "id">
   >;
-  getTransactions?: Resolver<
-    Maybe<Array<Maybe<ResolversTypes["Transaction"]>>>,
+  getTopUsers?: Resolver<
+    Maybe<Array<Maybe<ResolversTypes["User"]>>>,
     ParentType,
-    ContextType
+    ContextType,
+    Partial<QueryGetTopUsersArgs>
+  >;
+  getTransactions?: Resolver<
+    Maybe<ResolversTypes["TransactionConnection"]>,
+    ParentType,
+    ContextType,
+    Partial<QueryGetTransactionsArgs>
   >;
   getUser?: Resolver<
     Maybe<ResolversTypes["User"]>,
     ParentType,
     ContextType,
     RequireFields<QueryGetUserArgs, "id">
+  >;
+  getUserById?: Resolver<
+    Maybe<ResolversTypes["User"]>,
+    ParentType,
+    ContextType,
+    RequireFields<QueryGetUserByIdArgs, "id">
   >;
   getUserComments?: Resolver<
     Maybe<Array<Maybe<ResolversTypes["Comment"]>>>,
@@ -1258,7 +1323,7 @@ export type QueryResolvers<
     RequireFields<QueryGetUserSharesArgs, "id">
   >;
   getUserTransactions?: Resolver<
-    Maybe<Array<Maybe<ResolversTypes["Transaction"]>>>,
+    Maybe<ResolversTypes["TransactionConnection"]>,
     ParentType,
     ContextType,
     Partial<QueryGetUserTransactionsArgs>
@@ -1304,6 +1369,7 @@ export type TransactionResolvers<
     ContextType
   >;
   id?: Resolver<Maybe<ResolversTypes["ID"]>, ParentType, ContextType>;
+  ownerId?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   receiverWalletId?: Resolver<
     Maybe<ResolversTypes["ID"]>,
     ParentType,
@@ -1323,6 +1389,24 @@ export type TransactionResolvers<
   type?: Resolver<Maybe<ResolversTypes["String"]>, ParentType, ContextType>;
   updatedAt?: Resolver<
     Maybe<ResolversTypes["String"]>,
+    ParentType,
+    ContextType
+  >;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TransactionConnectionResolvers<
+  ContextType = any,
+  ParentType extends
+    ResolversParentTypes["TransactionConnection"] = ResolversParentTypes["TransactionConnection"],
+> = {
+  pageInfo?: Resolver<
+    Maybe<ResolversTypes["Pagination"]>,
+    ParentType,
+    ContextType
+  >;
+  transactions?: Resolver<
+    Maybe<Array<Maybe<ResolversTypes["Transaction"]>>>,
     ParentType,
     ContextType
   >;
@@ -1452,11 +1536,13 @@ export type Resolvers<ContextType = any> = {
   LoginResponse?: LoginResponseResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   ObjectId?: GraphQLScalarType;
+  Pagination?: PaginationResolvers<ContextType>;
   Post?: PostResolvers<ContextType>;
   PostStats?: PostStatsResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Share?: ShareResolvers<ContextType>;
   Transaction?: TransactionResolvers<ContextType>;
+  TransactionConnection?: TransactionConnectionResolvers<ContextType>;
   TransferFundsResponse?: TransferFundsResponseResolvers<ContextType>;
   Upload?: GraphQLScalarType;
   User?: UserResolvers<ContextType>;

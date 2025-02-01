@@ -1,57 +1,79 @@
 import { UserModel } from "../models/User.model";
 import { WalletModel } from "../models/Wallet.model";
 import { TransactionModel } from "../models/Transaction.model";
-
 import { QueryResolvers, MutationResolvers } from "../types/types.generated";
 import { IContext } from "../types/context.types";
 import { GraphQLError } from "graphql";
+import { PipelineStage } from "mongoose";
 
 export const transactionQueries: QueryResolvers<IContext> = {
-  getUserTransactions: async (parent, _, { user, error }) => {
+  getUserTransactions: async (
+    parent,
+    { input, pagination },
+    { user, error }
+  ) => {
     if (error) throw error;
-    if (!user) throw new Error("User not found");
+    if (!user) throw new GraphQLError("User not found");
 
-    console.log("user", user);
+    const { limit = 10, page = 1 } = pagination;
 
-    const userWallet = await WalletModel.findOne({ userId: user.id });
-    if (!userWallet) throw new Error("Wallet not found");
+    try {
+      const skip = (page - 1) * limit;
 
-    // Query transactions involving the user's wallet, grouped by transactionHash and prioritizing "send"
-    const transactions = await TransactionModel.aggregate([
-      {
-        $match: {
-          $or: [
-            { senderWalletId: userWallet._id },
-            { receiverWalletId: userWallet._id },
-          ],
-        },
-      },
-      {
-        $addFields: {
-          priority: {
-            $cond: { if: { $eq: ["$type", "send"] }, then: 1, else: 0 },
-          },
-        },
-      },
-      {
-        $sort: {
-          priority: -1, // Prioritize "send" type
-          createdAt: -1, // Ensure the latest transaction is picked in case of duplicates
-        },
-      },
-      {
-        $group: {
-          _id: "$transactionHash", // Group by transaction hash
-          transaction: { $first: "$$ROOT" }, // Pick the first document in each group (after sorting)
-        },
-      },
-      {
-        $replaceRoot: { newRoot: "$transaction" }, // Flatten the grouped result
-      },
-    ]);
+      const query = {
+        ownerId: user.id,
+        status: input.type,
+      };
+      const [totalItems, transactions] = await Promise.all([
+        TransactionModel.countDocuments({ ownerId: user.id }),
+        TransactionModel.find(query).skip(skip).limit(limit),
+      ]);
 
-    return transactions as any;
+      const totalPages = Math.ceil(totalItems / limit);
+
+      return {
+        transactions: transactions as any,
+        pageInfo: {
+          totalItems,
+          totalPages,
+          currentPage: page,
+        },
+      };
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+      throw new GraphQLError("Failed to fetch transactions");
+    }
   },
 };
 
 export const transactionMutations: MutationResolvers<IContext> = {};
+
+// export const addDefaultSort = (
+//   schema: any,
+//   options = {
+//     field: "createdAt",
+//     order: -1,
+//     applyToFindOne: false,
+//     applyToFind: false,
+//   }
+// ) => {
+//   const { field = "createdAt", order = -1, applyToFindOne = false } = options;
+
+//   if (!schema.get("timestamps")) {
+//     schema.set("timestamps", true);
+//   }
+
+//   const applySort = function (next: any) {
+//     if (!this.options.sort) {
+//       this.options.sort = { [field]: order };
+//     }
+//     next();
+//   };
+
+//   schema.pre("find", applySort);
+
+//   if (applyToFindOne) {
+//     schema.pre("findOne", applySort);
+//     schema.pre("findById", applySort);
+//   }
+// };

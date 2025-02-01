@@ -1,17 +1,3 @@
-type Query {
-  getUserPosts(id: ID!): [Post]
-  getCommunityPosts(id: ID!): [Post]
-  getPost(id: ID!): Post
-  getAllPosts(filters: PostFilter): [Post]
-  getFollowingPosts: [Post]
-}
-
-input PostFilter {
-  title: String
-  content: String
-  length: Int
-}
-
 type CreatePostResponse {
   message: String
 }
@@ -70,6 +56,20 @@ input PostInput {
   userId: ID
   createdAt: Date
   updatedAt: Date
+}
+
+input PostFilter {
+  title: String
+  content: String
+  length: Int
+}
+
+type Query {
+  getUserPosts(id: ID!): [Post]
+  getCommunityPosts(id: ID!): [Post]
+  getPost(id: ID!): Post
+  getAllPosts(filters: PostFilter): [Post]
+  getFollowingPosts: [Post]
 }
 
 type Mutation {

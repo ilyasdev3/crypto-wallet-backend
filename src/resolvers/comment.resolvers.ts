@@ -46,18 +46,31 @@ export const commentMutations: MutationResolvers<IContext> = {
 
     const { postId, content } = comment;
 
-    if (!user.id) throw new GraphQLError("you are not loggedin");
+    if (!user.id) throw new GraphQLError("You are not logged in");
 
     if (!postId || !content)
-      throw new GraphQLError(" postId and content are required");
+      throw new GraphQLError("postId and content are required");
 
+    // Create the comment
     const createdComment = await CommentModel.create({
       user: user.id,
       postId,
       content,
     });
 
-    // update post stats
+    // Populate the `user` field
+    const populatedComment = await CommentModel.findById(createdComment._id)
+      .populate({
+        path: "user",
+        select: "firstName lastName username profileImage",
+      })
+      .exec();
+
+    if (!populatedComment) {
+      throw new Error("Failed to create comment");
+    }
+
+    // Update post stats
     const post = await PostModel.findById(postId);
     if (!post) throw new Error("Post not found");
 
@@ -67,9 +80,25 @@ export const commentMutations: MutationResolvers<IContext> = {
       stats: postStats,
     });
 
+    // Convert ObjectId fields to strings
+    const formattedComment = {
+      id: populatedComment._id.toString(),
+      user: {
+        id: populatedComment.user._id.toString(),
+        firstName: populatedComment.user.firstName,
+        lastName: populatedComment.user.lastName,
+        username: populatedComment.user.username,
+        profileImage: populatedComment.user.profileImage,
+      },
+      postId: populatedComment.postId.toString(),
+      content: populatedComment.content,
+      createdAt: populatedComment.createdAt,
+      updatedAt: populatedComment.updatedAt,
+    };
+
     return {
       message: "Comment created successfully",
-      comment: createdComment as any,
+      comment: formattedComment,
     };
   },
 };

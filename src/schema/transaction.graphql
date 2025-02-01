@@ -7,6 +7,7 @@ type Transaction {
   receiverWalletId: ID
   contractId: ID
   transactionHash: String
+  ownerId: String
   type: String
   createdAt: String
   updatedAt: String
@@ -17,9 +18,28 @@ input UserTransactionInput {
   filter: String
 }
 
+type Pagination {
+  totalItems: Int
+  totalPages: Int
+  currentPage: Int
+}
+
+type TransactionConnection {
+  transactions: [Transaction]
+  pageInfo: Pagination
+}
+
+input PaginationInput {
+  limit: Int
+  page: Int
+}
+
 type Query {
-  getTransactions: [Transaction]
-  getUserTransactions(input: UserTransactionInput): [Transaction]
+  getTransactions(input: PaginationInput): TransactionConnection
+  getUserTransactions(
+    input: UserTransactionInput
+    pagination: PaginationInput
+  ): TransactionConnection
 }
 
 type Mutation {
@@ -34,4 +54,5 @@ input TransactionInput {
   receiverWalletId: ID
   contractId: ID
   transactionHash: String
+  ownerId: String
 }

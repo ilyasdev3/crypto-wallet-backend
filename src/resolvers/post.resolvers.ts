@@ -64,18 +64,26 @@ export const postQueries: QueryResolvers<IContext> = {
     const query: any = {};
     const { title, content, length } = filters;
 
+    const sort = "asc";
+
     // Apply title filter with regex
-    if (title) {
-      query.title = { $regex: title, $options: "i" }; // case-insensitive partial match
-    }
+    // if (title) {
+    //   query.title = { $regex: title, $options: "i" }; // case-insensitive partial match
+    // }
 
     // Apply content filter with regex
     if (content) {
       query.content = { $regex: content, $options: "i" };
     }
 
+    // Determine sorting order (default: descending by `createdAt`)
+    const sortOrder: any = {};
+
+    sortOrder["createdAt"] = -1; // Default to descending by createdAt
+
     // Query posts and populate user and community details
     const posts = await PostModel.find(query)
+      .sort(sortOrder) // Apply sorting
       .limit(length || 10)
       .populate({
         path: "userId", // Assuming userId references the User model

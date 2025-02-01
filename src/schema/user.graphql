@@ -5,6 +5,7 @@ type Query {
   getUserFollowers(id: ID!): [User]
   getUserWithName(username: String!): getUserWithNameResponse
   getUserById(id: ID!): User
+  getTopUsers(limit: Int): [User]
 }
 
 type getUserWithNameResponse {

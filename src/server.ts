@@ -3,12 +3,12 @@ import { authMiddleware } from "./middlewares/auth.middleware";
 import path from "path";
 import dotenv from "dotenv";
 dotenv.config({ path: path.join(__dirname, "..", ".env") });
-import "./services/transactionCronjob.service"; // Import the cron job service
 
 import cors from "cors";
 import http from "http";
 import bodyParser from "body-parser";
 import express from "express";
+import { Server } from "socket.io";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 import { makeExecutableSchema } from "@graphql-tools/schema";
@@ -18,6 +18,8 @@ import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHt
 import connectToDB from "./config/connectDB.config";
 import { resolvers } from "./resolvers";
 import { typeDefs } from "./types/typeDefs.generated";
+import { initializeSocketIO } from "./services/transactionMonitor.service";
+import { cleanupAllMonitoring } from "./services/transactionMonitor.service";
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -35,7 +37,6 @@ const corsOptions = {
     origin: string | undefined,
     callback: (err: Error | null, allow?: boolean) => void
   ) {
-    // Allow requests with no origin (like Apollo Sandbox or Postman)
     if (!origin) {
       callback(null, true);
       return;
@@ -44,8 +45,8 @@ const corsOptions = {
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      console.log("Blocked origin:", origin); // For debugging
-      callback(null, false); // Don't throw error, just block the request
+      console.log("Blocked origin:", origin);
+      callback(null, false);
     }
   },
   credentials: true,
@@ -53,7 +54,36 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization", "apollo-require-preflight"],
 };
 
-// Apply CORS middleware to all routes
+// Initialize Socket.IO with CORS configuration
+const io = new Server(httpServer, {
+  cors: {
+    origin: allowedOrigins,
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
+
+// Initialize socket service with the io instance
+initializeSocketIO(io);
+
+// Socket connection handling
+io.on("connection", (socket) => {
+  console.log("Client connected:", socket.id);
+
+  // Handle joining user-specific room
+  socket.on("joinUser", (userId: string) => {
+    if (userId) {
+      socket.join(`user:${userId}`);
+      console.log(`User ${userId} joined their room`);
+    }
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Client disconnected:", socket.id);
+  });
+});
+
+// Apply CORS middleware to Express
 app.use(cors(corsOptions));
 
 const schema = makeExecutableSchema({
@@ -68,7 +98,10 @@ const server = new ApolloServer({
     {
       async serverWillStart() {
         return {
-          async drainServer() {},
+          async drainServer() {
+            // Cleanup monitoring tasks on server shutdown
+            cleanupAllMonitoring();
+          },
         };
       },
     },
@@ -87,8 +120,6 @@ async function startServer() {
       expressMiddleware(server, {
         context: async ({ req, res }) => {
           const token = req.headers.authorization;
-          console.log("token", token);
-
           const { user, error } = await authMiddleware(token);
           return { user, error };
         },
@@ -96,12 +127,33 @@ async function startServer() {
     );
 
     const PORT = process.env.PORT || 4000;
+
+    // Error handling for the HTTP server
+    httpServer.on("error", (error) => {
+      console.error("Server error:", error);
+    });
+
+    // Graceful shutdown handling
+    process.on("SIGTERM", () => {
+      console.log("SIGTERM received. Starting graceful shutdown...");
+      cleanupAllMonitoring();
+      httpServer.close(() => {
+        console.log("Server closed");
+        process.exit(0);
+      });
+    });
+
     httpServer.listen(PORT, () => {
-      console.log(`Server running at http://localhost:${PORT}/graphql`);
+      console.log(`🚀 Server running at http://localhost:${PORT}/graphql`);
+      console.log(`🔌 WebSocket server is ready`);
     });
   } catch (error) {
     console.error("❌ Error starting the server:", error);
+    process.exit(1);
   }
 }
 
-startServer();
+startServer().catch((error) => {
+  console.error("Failed to start server:", error);
+  process.exit(1);
+});
