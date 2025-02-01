@@ -3,3 +3,4 @@ dist/
 #remove package-lock.json
 package-lock.json
 .env
+.vercel
