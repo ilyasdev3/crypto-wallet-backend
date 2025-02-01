@@ -1,6 +1,4 @@
 node_modules/
-dist/
 #remove package-lock.json
 package-lock.json
 .env
-.vercel
