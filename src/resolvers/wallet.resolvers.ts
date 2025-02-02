@@ -252,9 +252,10 @@ export const walletMutations: MutationResolvers = {
     try {
       const { amount, username } = transferFunds;
 
+      console.log("username", username);
+
       if (!amount || Number(amount) <= 0) throw new Error("Invalid amount");
-      if (!username || !isValidAddress(username))
-        throw new Error("Invalid username");
+      if (!username) throw new Error("Invalid username");
 
       // 1. Get required data
       const [senderWallet, recipient, contract] = await Promise.all([
@@ -405,11 +406,11 @@ const startTransactionCronJob = (
     try {
       const txStatus = await checkTransactionStatus(transactionHash);
       if (txStatus === "failed") {
-        await updateTransactionStatus(transactionId, "failed");
+        await updateTransactionStatus(transactionHash, "failed");
         console.log(`Transaction ${transactionHash} failed`);
         return; // Stop cron job if transaction failed
       } else if (txStatus === "confirmed") {
-        await updateTransactionStatus(transactionId, "completed");
+        await updateTransactionStatus(transactionHash, "completed");
         console.log(`Transaction ${transactionHash} confirmed`);
         return; // Stop cron job if transaction is confirmed
       }
@@ -423,32 +424,52 @@ const startTransactionCronJob = (
 };
 
 const updateTransactionStatus = async (
-  transactionId: string,
+  transactionHash: string,
   status: string
 ) => {
-  const transaction = await TransactionModel.findByIdAndUpdate(
-    transactionId,
-    { status: status },
-    { new: true }
-  ).populate("senderWalletId receiverWalletId");
+  // Find all transactions with the given transactionHash
+  const allTransactions = await TransactionModel.find({
+    transactionHash: transactionHash,
+  }).populate("senderWalletId receiverWalletId");
 
-  const senderWallet = await WalletModel.findById(transaction?.senderWalletId);
-  const receiverWallet = await WalletModel.findById(
-    transaction?.receiverWalletId
+  console.log("allTransactions", allTransactions);
+
+  // Update the status of all transactions
+  await Promise.all(
+    allTransactions.map(async (transaction) => {
+      await TransactionModel.findByIdAndUpdate(
+        transaction._id,
+        { status: status },
+        { new: true }
+      );
+    })
   );
 
-  if (transaction && senderWallet) {
-    // Emit to sender
-    if (senderWallet.userId) {
-      startTransactionMonitoring(transactionId, senderWallet.userId.toString());
-    }
-
-    // Emit to receiver
-    if (receiverWallet && receiverWallet.userId) {
-      startTransactionMonitoring(
-        transactionId,
-        receiverWallet.userId.toString()
+  // Notify the sender and receiver for each transaction
+  await Promise.all(
+    allTransactions.map(async (transaction) => {
+      const senderWallet = await WalletModel.findById(
+        transaction.senderWalletId
       );
-    }
-  }
+      const receiverWallet = await WalletModel.findById(
+        transaction.receiverWalletId
+      );
+
+      // Notify the sender
+      if (senderWallet && senderWallet.userId) {
+        startTransactionMonitoring(
+          transaction._id.toString(),
+          senderWallet.userId.toString()
+        );
+      }
+
+      // Notify the receiver
+      if (receiverWallet && receiverWallet.userId) {
+        startTransactionMonitoring(
+          transaction._id.toString(),
+          receiverWallet.userId.toString()
+        );
+      }
+    })
+  );
 };
