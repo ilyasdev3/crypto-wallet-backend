@@ -31,6 +31,7 @@ const allowedOrigins = [
   "https://studio.apollographql.com",
   "https://sandbox.apollo.dev",
   "https://crypto-wallet-web-fawn.vercel.app",
+  "https://crypto-wallet-backend-weld.vercel.app",
 ];
 
 const corsOptions = {
