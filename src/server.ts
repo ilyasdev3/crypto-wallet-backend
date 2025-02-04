@@ -30,6 +30,7 @@ const allowedOrigins = [
   "http://localhost:3000",
   "https://studio.apollographql.com",
   "https://sandbox.apollo.dev",
+  "https://crypto-wallet-web-fawn.vercel.app",
 ];
 
 const corsOptions = {
@@ -118,7 +119,7 @@ async function startServer() {
       graphqlUploadExpress({ maxFileSize: 1000000000, maxFiles: 1 }),
       bodyParser.json({ limit: "50mb" }),
       expressMiddleware(server, {
-        context: async ({ req, res }) => {
+        context: async ({ req }) => {
           const token = req.headers.authorization;
           const { user, error } = await authMiddleware(token);
           return { user, error };
