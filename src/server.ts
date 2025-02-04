@@ -12,6 +12,7 @@ import { Server } from "socket.io";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 import { makeExecutableSchema } from "@graphql-tools/schema";
+
 import { graphqlUploadExpress } from "graphql-upload-minimal";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 
@@ -65,7 +66,6 @@ const io = new Server(httpServer, {
   },
 });
 
-// Initialize socket service with the io instance
 initializeSocketIO(io);
 
 // Socket connection handling
