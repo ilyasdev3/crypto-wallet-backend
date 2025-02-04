@@ -64,7 +64,6 @@ const io = new Server(httpServer, {
   },
 });
 
-// Initialize socket service with the io instance
 initializeSocketIO(io);
 
 // Socket connection handling
